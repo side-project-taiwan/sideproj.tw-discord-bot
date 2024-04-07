@@ -24,9 +24,30 @@ client.on("messageCreate", (message) => {
   console.log(
     `Message from ${message.channel.name}, ${message.author.displayName}:${message.content}`
   );
-
-  if (message.content === "hello") {
+  const { content } = message;
+  if (content === "hello") {
     message.reply("hello");
+  }
+   // embed
+   if (content === "embed") {
+    const embed = new EmbedBuilder()
+      .setTitle("This is an embed")
+      .setDescription("This is a test embed")
+      .setColor("Random")
+      .addFields(
+        { name: "Field title", value: "Some valse", inline: true },
+        { name: "Field title", value: "Some valse", inline: true }
+      );
+    console.log(embed.toJSON());
+    //# Will @user and reply to the message
+    // message.reply({
+    //   embeds: [embed],
+    // });
+    
+    //# Will only send the embed
+    message.channel.send({
+      embeds: [embed],
+    });
   }
 });
 
@@ -62,38 +83,10 @@ client.on("interactionCreate", (interaction) => {
         { name: "Field title", value: "Some valse", inline: true }
       );
     console.log(embed.toJSON());
-    interaction.reply({
-      embeds: [embed],
-    });
-  }
-});
-
-client.on("messageCreate", (message) => {
-  if (message.author.bot) return;
-  console.log(
-    `Message from ${message.channel.name}, ${message.author.displayName}:${message.content}`
-  );
-  const { content } = message;
-  // embed
-  if (content === "embed") {
-    const embed = new EmbedBuilder()
-      .setTitle("This is an embed")
-      .setDescription("This is a test embed")
-      .setColor("Random")
-      .addFields(
-        { name: "Field title", value: "Some valse", inline: true },
-        { name: "Field title", value: "Some valse", inline: true }
-      );
-    console.log(embed.toJSON());
-    //# Will @user and reply to the message
-    // message.reply({
+    interaction.channel.send({embeds: [embed]});
+    // interaction.reply({
     //   embeds: [embed],
     // });
-    
-    //# Will only send the embed
-    message.channel.send({
-      embeds: [embed],
-    });
   }
 });
 
