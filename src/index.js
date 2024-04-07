@@ -35,6 +35,13 @@ console.log("⌘: ",interaction.commandName);
   if (commandName === "ping") {
     interaction.reply("Pong!");
   }
+
+  if (commandName === "add") {
+    const num1 = interaction.options.getNumber("first_number");
+    const num2 = interaction.options.getNumber("second_number");
+    console.log(num1, num2);
+    interaction.reply(`The sum is ${num1 + num2}`);
+  }
 });
 
 client.login(env.DISCORD_TOKEN);
