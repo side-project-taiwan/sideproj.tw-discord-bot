@@ -17,47 +17,52 @@ const commands = [
     name: "add",
     description: "Add two numbers",
     options: [
-        {
-            name:"first_number",
-            description:"The first number",
-            type: ApplicationCommandOptionType.Number,
-            choices: [
-                {
-                    name: "One",
-                    value: 1,
-                },
-                {
-                    name: "Two",
-                    value: 2,
-                },
-                {
-                    name: "Three",
-                    value: 3,
-                },
-            ],
-            required:true,
-        },
-        {
-            name:"second_number",
-            description:"The second number",
-            type: ApplicationCommandOptionType.Number,
-            choices: [
-                {
-                    name: "One",
-                    value: 1,
-                },
-                {
-                    name: "Two",
-                    value: 2,
-                },
-                {
-                    name: "Three",
-                    value: 3,
-                },
-            ],
-            required:true,
-        },
-    ]
+      {
+        name: "first_number",
+        description: "The first number",
+        type: ApplicationCommandOptionType.Number,
+        choices: [
+          {
+            name: "One",
+            value: 1,
+          },
+          {
+            name: "Two",
+            value: 2,
+          },
+          {
+            name: "Three",
+            value: 3,
+          },
+        ],
+        required: true,
+      },
+      {
+        name: "second_number",
+        description: "The second number",
+        type: ApplicationCommandOptionType.Number,
+        choices: [
+          {
+            name: "One",
+            value: 1,
+          },
+          {
+            name: "Two",
+            value: 2,
+          },
+          {
+            name: "Three",
+            value: 3,
+          },
+        ],
+        required: true,
+      },
+    ],
+  },
+  // embed
+  {
+    name: "embed",
+    description: "Sends an embed",
   },
 ];
 
