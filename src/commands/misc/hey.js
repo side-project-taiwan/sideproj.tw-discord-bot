@@ -7,12 +7,12 @@ module.exports = {
    * @param {Interaction} interaction
    */
   callback: (client, interaction) => {
-    interaction.reply(`Pong! ${client.ws.ping}ms`);
+    interaction.reply("hey!");
   },
 
   //base command data
-  name: "ping",
-  description: "Ping!",
+  name: "hey",
+  description: "Say hey to bot!",
   //   devOnly: true,  // Boolean
   //   testOnly: true, // Boolean
   //   options: [],    // Object[]

@@ -33,10 +33,14 @@ const roles = [
   },
 ];
 
+const 練舞室 = "1221107745051250840";
+const 會議室A = "1210620729268244540";
+const discordBotDev = "1226470842133774336";
+
 client.on("ready", async(c) => {
   console.log(`🚥 The ${c.user.tag} is online!`);
   try {
-    const channel = c.channels.cache.get("1210620729268244540");
+    const channel = c.channels.cache.get(discordBotDev);
     if (!channel) return console.log("🚨 Channel not found");
 
     const row = new ActionRowBuilder();

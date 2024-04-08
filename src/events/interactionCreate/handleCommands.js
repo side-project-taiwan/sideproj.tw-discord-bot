@@ -10,7 +10,7 @@ const getLocalCommands = require("../../utils/getLocalCommands");
  */
 module.exports = async (client, interaction) => {
   if (!interaction.isChatInputCommand()) return;
-
+  console.log(`🔍 [${interaction.member.displayName}] ⌘: ${interaction.commandName}`);
   const localCommand = getLocalCommands();
 
   try {
