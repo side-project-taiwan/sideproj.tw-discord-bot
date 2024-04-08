@@ -1,9 +1,4 @@
-const {
-  Client,
-  IntentsBitField,
-  GatewayIntentBits,
-  EmbedBuilder,
-} = require("discord.js");
+const { Client, GatewayIntentBits, EmbedBuilder } = require("discord.js");
 const { env } = require("./env");
 
 const client = new Client({
@@ -28,8 +23,8 @@ client.on("messageCreate", (message) => {
   if (content === "hello") {
     message.reply("hello");
   }
-   // embed
-   if (content === "embed") {
+  // embed
+  if (content === "embed") {
     const embed = new EmbedBuilder()
       .setTitle("This is an embed")
       .setDescription("This is a test embed")
@@ -43,7 +38,7 @@ client.on("messageCreate", (message) => {
     // message.reply({
     //   embeds: [embed],
     // });
-    
+
     //# Will only send the embed
     message.channel.send({
       embeds: [embed],
@@ -51,7 +46,45 @@ client.on("messageCreate", (message) => {
   }
 });
 
-client.on("interactionCreate", (interaction) => {
+client.on("interactionCreate", async (interaction) => {
+  console.log(
+    `Interaction from ${interaction.channel.name}, ${interaction.user.displayName}:${interaction.customId}`
+  );
+  // buttons 控制
+  try {
+    if (interaction.isButton()) {
+      //step 取得 dc guild role
+      const role = interaction.guild.roles.cache.get(interaction.customId);
+      // await interaction.deferReply();
+      if (!role) {
+        interaction.editReply({
+          content: "I couldn't find that role",
+          // ephemeral: true, // 只有該使用者可以看到
+        });
+        return;
+      }
+      //step 檢查該使用者是否有 role
+      const hasRole = interaction.member.roles.cache.has(role.id);
+      if (hasRole) {
+        await interaction.member.roles.remove(role);
+        await interaction.reply({
+          content:`The role ${role.name} has been removed`,
+          ephemeral: true, // 只有該使用者可以看到
+        });
+        return;
+      } else {
+        await interaction.member.roles.add(role);
+        await interaction.reply({
+          content: `The role ${role.name} has been added`,
+          ephemeral: true, // 只有該使用者可以看到
+        });
+        return;
+      }
+    }
+  } catch (error) {
+    console.log(`🚨 There was a buttons 控制 error ${error}`);
+  }
+  // slash commands
   if (!interaction.isChatInputCommand()) return;
   console.log("⌘: ", interaction.commandName);
   const { commandName } = interaction;
@@ -83,10 +116,10 @@ client.on("interactionCreate", (interaction) => {
         { name: "Field title", value: "Some valse", inline: true }
       );
     console.log(embed.toJSON());
-    interaction.channel.send({embeds: [embed]});
-    // interaction.reply({
-    //   embeds: [embed],
-    // });
+    // interaction.channel.send({embeds: [embed]});
+    interaction.reply({
+      embeds: [embed],
+    });
   }
 });
 
