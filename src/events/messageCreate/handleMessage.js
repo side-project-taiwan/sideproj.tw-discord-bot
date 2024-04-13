@@ -42,7 +42,7 @@ module.exports = async (client, message) => {
     }
   } catch (error) {
     console.log(
-      `🚨 [handleCommands] There was an error running this command: ${error}`
+      `🚨 [handleMessage] There was an error running this command: ${error}`
     );
   }
 };

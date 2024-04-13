@@ -6,6 +6,7 @@ const environmentSchema = z.object({
   DISCORD_TOKEN: z.string(),
   DISCORD_PUBLIC_KEY: z.string(),
   DISCORD_GUILD_ID: z.string(),
+  MONGO_URI: z.string(),
   PORT: z.preprocess((val) => {
     const parsed = parseInt(val, 10);
     return !isNaN(parsed) ? parsed : 3000; // 使用默認值3000如果轉換失敗
@@ -17,6 +18,7 @@ const {
   DISCORD_TOKEN,
   DISCORD_PUBLIC_KEY,
   DISCORD_GUILD_ID,
+  MONGO_URI,
   PORT,
 } = process.env;
 
@@ -25,6 +27,7 @@ const environment = environmentSchema.safeParse({
   DISCORD_TOKEN,
   DISCORD_PUBLIC_KEY,
   DISCORD_GUILD_ID,
+  MONGO_URI,
   PORT,
 });
 
