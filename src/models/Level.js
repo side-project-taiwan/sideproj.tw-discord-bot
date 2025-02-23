@@ -17,6 +17,10 @@ const levelSchema = new Schema({
         type: Number,
         default: 0,
     },
+    spExp:{
+        type: Number,
+        default: 0,
+    },
 });
 
 module.exports = model('Level', levelSchema);
