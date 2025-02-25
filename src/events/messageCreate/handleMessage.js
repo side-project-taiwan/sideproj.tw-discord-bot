@@ -10,9 +10,9 @@ const getLocalCommands = require("../../utils/getLocalCommands");
  */
 module.exports = async (client, message) => {
   if (message.author.bot) return;
-  console.log(
-    `Message from ${message.channel.name}, ${message.author.displayName}:${message.content}`
-  );
+  // console.log(
+  //   `Message from ${message.channel.name}, ${message.author.displayName}:${message.content}`
+  // );
   try {
     const { content } = message;
     if (content === "hello") {
