@@ -50,6 +50,7 @@ module.exports = {
     let hour = date.getHours();
     // console.log(`hour: ${hour}`);
     // 如果在sp hour 打卡獲得200exp
+    console.log(`hour: ${hour}, spHour: ${spHour}`);
     if (hour === spHour) {
       exp = 200;
       replyString = `打卡開始進行Side Project,在SP hour打卡經驗值兩倍! 獲得 ${exp} SP經驗!`;
