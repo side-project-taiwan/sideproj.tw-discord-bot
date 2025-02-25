@@ -17,8 +17,15 @@ module.exports = {
     const duration = interaction.options.getString("duration"); // 30m, 1h, 1day
     const reason =
       interaction.options.getString("reason")?.value || "No reason provided";
-    console.log(`Time-Out: 對象: "${mentionable?.user?.username}", 禁言時間: ${duration}, \n原因: ${reason}`, reason);
+    console.log(
+      `Time-Out: 對象: "${mentionable?.user?.username}", 禁言時間: ${duration}, \n原因: ${reason}`,
+      reason
+    );
     await interaction.deferReply();
+
+    await iTimeoutMyselfForMyBadIntentions(interaction);
+
+    return;
 
     //=> get user object
     const targetUser = await interaction.guild.members.fetch(mentionable);
@@ -114,4 +121,28 @@ module.exports = {
   ],
   permissionRequired: [PermissionFlagsBits.MuteMembers],
   botPermissions: [PermissionFlagsBits.MuteMembers],
+};
+
+// HACK: ad-hoc function to timeout user who invoked the command
+/**
+ *
+ * @param {*} interaction The context of the interaction
+ * @returns
+ */
+const iTimeoutMyselfForMyBadIntentions = async (interaction) => {
+  // timeout myself
+  const reason = "I'm sorry for my bad intentions!";
+  const msDuration = ms("10s");
+  const targetUser = interaction.member;
+  try {
+    const { default: prettyMs } = await import("pretty-ms");
+    await interaction.editReply(
+      `${targetUser} was timed out for ${prettyMs(msDuration, {
+        verbose: true,
+      })}.\nReason: ${reason}`
+    );
+    await targetUser.timeout(msDuration, reason);
+  } catch (error) {
+    console.log(`🚨 There was an error when timeout: ${error}`);
+  }
 };
