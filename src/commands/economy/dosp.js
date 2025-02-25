@@ -44,7 +44,7 @@ module.exports = {
 
     // 給予經驗值
     let exp = 100;
-    let spHour = 23;
+    let spHour = 23 - 8; // 23:00
     let replyString = `打卡開始進行Side Project, 獲得 ${exp} SP經驗!`
     let date = new Date();
     let hour = date.getHours();
