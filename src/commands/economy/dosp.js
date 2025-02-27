@@ -5,7 +5,7 @@ const {
 } = require("discord.js");
 const Level = require("../../models/Level");
 const SigninLog = require("../../models/SigninLog");
-const cooldowns = new Set();
+const cooldowns = [];
 module.exports = {
   /**
    *
@@ -24,24 +24,28 @@ module.exports = {
       return;
     }
     // await interaction.deferReply();
-    // console.log(interaction.member.id);
-    // console.log('cooldowns: ',cooldowns);
-    // console.log(`cooldowns.has(${interaction.member.id}): `,cooldowns.has(interaction.member.id));
     // 檢查是否在冷卻中
-    if (cooldowns.has(interaction.member.id)) {
-      try {
-        await interaction.reply(`您已經打卡過了!請做滿一小時再打卡!`);
+    console.log('cooldowns: ',cooldowns);
+    const userlog = cooldowns.find((log) => log.userId === interaction.member.id);
+    // 打卡時間一小時內不可重複打卡
+    if(!userlog){
+      cooldowns.push({
+        userId: interaction.member.id,
+        time: Date.now(),
+      });
+    } else {
+      if (userlog.time + 60 * 60 * 1000 > Date.now()) {
+        try {
+          await interaction.reply(`您已經打卡過了!請做滿一小時再打卡!`);
+          return;
+        } catch (error) {
+          console.log(`🚨 Error creating embed: ${error}`);
+        }
         return;
-      } catch (error) {
-        console.log(`🚨 Error creating embed: ${error}`);
+      } else {
+        userlog.time = Date.now();
       }
-      return;
     }
-    cooldowns.add(interaction.member.id);
-    setTimeout(() => {
-      cooldowns.delete(interaction.member.id);
-    }, 60 * 60 * 1000);
-
     // 給予經驗值
     let exp = 100;
     let spHour = 23 - 8; // 23:00
