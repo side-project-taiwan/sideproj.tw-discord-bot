@@ -5,7 +5,6 @@ const {
 } = require("discord.js");
 const Level = require("../../models/Level");
 const SigninLog = require("../../models/SigninLog");
-const cooldowns = [];
 module.exports = {
   /**
    *
