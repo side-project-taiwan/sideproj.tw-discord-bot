@@ -5,7 +5,6 @@ const {
 } = require("discord.js");
 const Level = require("../../models/Level");
 const SigninLog = require("../../models/SigninLog");
-const cooldowns = new Set();
 module.exports = {
   /**
    *
@@ -24,24 +23,36 @@ module.exports = {
       return;
     }
     // await interaction.deferReply();
-    // console.log(interaction.member.id);
-    // console.log('cooldowns: ',cooldowns);
-    // console.log(`cooldowns.has(${interaction.member.id}): `,cooldowns.has(interaction.member.id));
+    // 取得使用者資料
+    let userLevel = await Level.findOne({
+      userId: interaction.member.id,
+      guildId: interaction.guild.id,
+    });
     // 檢查是否在冷卻中
-    if (cooldowns.has(interaction.member.id)) {
-      try {
-        await interaction.reply(`您已經打卡過了!請做滿一小時再打卡!`);
+    console.log('user: ',userLevel);
+    // 打卡時間一小時內不可重複打卡
+    if(!userLevel){
+      userLevel = new Level({
+        userId: interaction.member.id,
+        guildId: interaction.guild.id,
+        xp: 0,
+        level: 0,
+        spExp: 0,
+        spSigninCooldown: Date.now() + 60 * 60 * 1000,
+      });
+    } else {
+      if (userLevel.spSigninCooldown > Date.now()) {
+        try {
+          await interaction.reply(`您已經打卡過了!請做滿一小時再打卡!`);
+          return;
+        } catch (error) {
+          console.log(`🚨 Error creating embed: ${error}`);
+        }
         return;
-      } catch (error) {
-        console.log(`🚨 Error creating embed: ${error}`);
+      } else {
+        userLevel.spSigninCooldown = Date.now() + 60 * 60 * 1000;
       }
-      return;
     }
-    cooldowns.add(interaction.member.id);
-    setTimeout(() => {
-      cooldowns.delete(interaction.member.id);
-    }, 60 * 60 * 1000);
-
     // 給予經驗值
     let exp = 100;
     let spHour = 23 - 8; // 23:00
@@ -55,11 +66,6 @@ module.exports = {
       exp = 200;
       replyString = `打卡開始進行Side Project,在SP hour打卡經驗值兩倍! 獲得 ${exp} SP經驗!`;
     }
-    // => 取得使用者等級資料
-    const userLevel = await Level.findOne({
-      userId: interaction.member.id,
-      guildId: interaction.guild.id,
-    });
     userLevel.spExp += exp;
     await userLevel.save().catch((error) => {
       console.log(`🚨 Error saving level: ${error}`);
