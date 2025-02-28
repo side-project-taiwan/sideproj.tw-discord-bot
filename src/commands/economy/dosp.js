@@ -24,17 +24,25 @@ module.exports = {
       return;
     }
     // await interaction.deferReply();
+    // 取得使用者資料
+    let userLevel = await Level.findOne({
+      userId: interaction.member.id,
+      guildId: interaction.guild.id,
+    });
     // 檢查是否在冷卻中
-    console.log('cooldowns: ',cooldowns);
-    const userlog = cooldowns.find((log) => log.userId === interaction.member.id);
+    console.log('user: ',userLevel);
     // 打卡時間一小時內不可重複打卡
-    if(!userlog){
-      cooldowns.push({
+    if(!userLevel){
+      userLevel = new Level({
         userId: interaction.member.id,
-        time: Date.now(),
+        guildId: interaction.guild.id,
+        xp: 0,
+        level: 0,
+        spExp: 0,
+        spSigninCooldown: Date.now() + 60 * 60 * 1000,
       });
     } else {
-      if (userlog.time + 60 * 60 * 1000 > Date.now()) {
+      if (userLevel.spSigninCooldown > Date.now()) {
         try {
           await interaction.reply(`您已經打卡過了!請做滿一小時再打卡!`);
           return;
@@ -43,7 +51,7 @@ module.exports = {
         }
         return;
       } else {
-        userlog.time = Date.now();
+        userLevel.spSigninCooldown = Date.now() + 60 * 60 * 1000;
       }
     }
     // 給予經驗值
@@ -59,11 +67,6 @@ module.exports = {
       exp = 200;
       replyString = `打卡開始進行Side Project,在SP hour打卡經驗值兩倍! 獲得 ${exp} SP經驗!`;
     }
-    // => 取得使用者等級資料
-    const userLevel = await Level.findOne({
-      userId: interaction.member.id,
-      guildId: interaction.guild.id,
-    });
     userLevel.spExp += exp;
     await userLevel.save().catch((error) => {
       console.log(`🚨 Error saving level: ${error}`);

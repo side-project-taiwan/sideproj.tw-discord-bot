@@ -21,6 +21,10 @@ const levelSchema = new Schema({
         type: Number,
         default: 0,
     },
+    spSigninCooldown:{
+        type: Date,
+        default: Date.now,
+    },
 });
 
 module.exports = model('Level', levelSchema);
