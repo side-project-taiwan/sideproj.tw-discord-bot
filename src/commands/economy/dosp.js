@@ -84,6 +84,15 @@ module.exports = {
         teamExp = sameTimeSignins * 5 * multiple;
         userLevel.spExp += teamExp;
       }
+      if(!lastSignin.isRecalculated){
+        lastSignin.isRecalculated = true;
+        lastSignin.spExp += teamExp;
+        await lastSignin.save().catch((error) => {
+          console.log(`🚨 Error saving signin log: ${error}`);
+          return;
+        });
+        console.log(`lastSignin: ${lastSignin}`);
+      }
     }
 
     // 給予本次打卡經驗值
@@ -110,6 +119,7 @@ module.exports = {
     const signinLog = new SigninLog({
       userId: interaction.member.id,
       guildId: interaction.guild.id,
+      spExp: exp,
       startTime: Date.now(),
       endTime: Date.now() + 60 * 60 * 1000,
     });
