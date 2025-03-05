@@ -73,7 +73,7 @@ module.exports = {
         startTime: { $lt: lastSignin.endTime },
       });
       console.log(`sameTimeSignins: ${sameTimeSignins}`);
-      if(sameTimeSignins >= 1){
+      if(sameTimeSignins){
         let multiple = 1;
         //如果打卡時間為23:00，獲得兩倍經驗
         const hr = lastSignin.startTime.getHours();
