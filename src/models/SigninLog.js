@@ -9,6 +9,14 @@ const SigninLogSchema = new Schema({
         type: String,
         required: true,
     },
+    spExp: {
+        type: Number,
+        default: 0,
+    },
+    isRecalculated: {
+        type: Boolean,
+        default: false,
+    },
     startTime:{
         type: Date,
         default: Date.now,

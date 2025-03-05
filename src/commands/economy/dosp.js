@@ -44,7 +44,11 @@ module.exports = {
     } else {
       if (userLevel.spSigninCooldown > Date.now()) {
         try {
-          await interaction.reply(`您已經打卡過了!請做滿一小時再打卡!`);
+          // 計算剩餘時間
+          const remainingTime = userLevel.spSigninCooldown - Date.now();
+          const remainingMinutes = Math.floor(remainingTime / 60000);
+          const remainingSeconds = ((remainingTime % 60000) / 1000).toFixed(0);
+          await interaction.reply(`您已經打卡過了!請做滿一小時再打卡!還剩下: ${remainingMinutes}分鐘${remainingSeconds}秒`);
           return;
         } catch (error) {
           console.log(`🚨 Error creating embed: ${error}`);
@@ -69,7 +73,7 @@ module.exports = {
         startTime: { $lt: lastSignin.endTime },
       });
       console.log(`sameTimeSignins: ${sameTimeSignins}`);
-      if(sameTimeSignins > 1){
+      if(sameTimeSignins){
         let multiple = 1;
         //如果打卡時間為23:00，獲得兩倍經驗
         const hr = lastSignin.startTime.getHours();
@@ -79,6 +83,15 @@ module.exports = {
         }
         teamExp = sameTimeSignins * 5 * multiple;
         userLevel.spExp += teamExp;
+      }
+      if(!lastSignin.isRecalculated){
+        lastSignin.isRecalculated = true;
+        lastSignin.spExp += teamExp;
+        await lastSignin.save().catch((error) => {
+          console.log(`🚨 Error saving signin log: ${error}`);
+          return;
+        });
+        console.log(`lastSignin: ${lastSignin}`);
       }
     }
 
@@ -106,6 +119,7 @@ module.exports = {
     const signinLog = new SigninLog({
       userId: interaction.member.id,
       guildId: interaction.guild.id,
+      spExp: exp,
       startTime: Date.now(),
       endTime: Date.now() + 60 * 60 * 1000,
     });
