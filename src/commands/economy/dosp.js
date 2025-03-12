@@ -5,6 +5,7 @@ const {
 } = require("discord.js");
 const Level = require("../../models/Level");
 const SigninLog = require("../../models/SigninLog");
+const SpExpChange = require("../../models/SpExpChange");
 const SP_HOUR = 23 - 8; // 23:00
 module.exports = {
   /**
@@ -84,17 +85,28 @@ module.exports = {
         teamExp = sameTimeSignins * 5 * multiple;
         userLevel.spExp += teamExp;
       }
-      if(!lastSignin.isRecalculated){
-        lastSignin.isRecalculated = true;
-        lastSignin.spExp += teamExp;
-        await lastSignin.save().catch((error) => {
-          console.log(`🚨 Error saving signin log: ${error}`);
+      //檢查是否已經計算過團隊加成
+      const alreadyCalcLog = await SpExpChange.findOne({
+        userId: interaction.member.id,
+        guildId: interaction.guild.id,
+        signinId: lastSignin._id,
+        reason: 'team',
+      });
+      if(!alreadyCalcLog){
+        const spExpChange = new SpExpChange({
+          userId: interaction.member.id,
+          guildId: interaction.guild.id,
+          signinId: lastSignin._id,
+          reason: 'teamBonus',
+          expChange: teamExp,
+          updatedExp: userLevel.spExp,
+        });
+        await spExpChange.save().catch((error) => {
+          console.log(`🚨 Error saving spExpChange: ${error}`);
           return;
         });
-        console.log(`lastSignin: ${lastSignin}`);
       }
     }
-
     // 給予本次打卡經驗值
     let exp = 100;
     let replyString = `打卡開始進行Side Project, 獲得 ${exp} SP經驗!`
@@ -119,12 +131,24 @@ module.exports = {
     const signinLog = new SigninLog({
       userId: interaction.member.id,
       guildId: interaction.guild.id,
-      spExp: exp,
       startTime: Date.now(),
       endTime: Date.now() + 60 * 60 * 1000,
     });
     await signinLog.save().catch((error) => {
       console.log(`🚨 Error saving signin log: ${error}`);
+      return;
+    });
+    // 寫入經驗值變動紀錄
+    const spExpChange = new SpExpChange({
+      userId: interaction.member.id,
+      guildId: interaction.guild.id,
+      signinId: signinLog._id,
+      expChange: exp,
+      updatedExp: userLevel.spExp,
+      reason: 'signin',
+    });
+    await spExpChange.save().catch((error) => {
+      console.log(`🚨 Error saving spExpChange: ${error}`);
       return;
     });
     //=> 創建一個嵌入式消息
