@@ -90,7 +90,7 @@ module.exports = {
         userId: interaction.member.id,
         guildId: interaction.guild.id,
         signinId: lastSignin._id,
-        reason: 'team',
+        reason: 'teamBonus',
       });
       if(!alreadyCalcLog){
         const spExpChange = new SpExpChange({
