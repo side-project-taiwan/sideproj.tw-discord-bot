@@ -7,6 +7,7 @@ const Level = require("../../models/Level");
 const SigninLog = require("../../models/SigninLog");
 const SpExpChange = require("../../models/SpExpChange");
 const SP_HOUR = 23 - 8; // 23:00
+const SP_EXP_MAX = 20000
 module.exports = {
   /**
    *
@@ -43,6 +44,11 @@ module.exports = {
         spSigninCooldown: Date.now() + 60 * 60 * 1000,
       });
     } else {
+      // 檢查是否已達上限
+      if (userLevel.spExp >= SP_EXP_MAX) {
+        await interaction.reply(`您的經驗值已到達上限${SP_EXP_MAX}，請升級等級後再打卡(進行Side Project分享即可獲得升級道具)`);
+        return;
+      }
       if (userLevel.spSigninCooldown > Date.now()) {
         try {
           // 計算剩餘時間
