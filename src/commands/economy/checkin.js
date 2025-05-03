@@ -5,6 +5,7 @@ const CheckIn = require("../../models/CheckIn");
 const { StreakRewardByDay } = require("../../enums/streak.enum");
 const { getOrCreateUser } = require("../../services/level.service");
 const { initCheckIn } = require("../../services/checkIn.service");
+
 module.exports = {
   /**
    *
@@ -28,6 +29,13 @@ module.exports = {
     // await interaction.deferReply();
 
     // 取得使用者資料
+    const user = await interaction.guild.members.fetch(userId);
+    const isBoosting = !!user.premiumSince;
+    const boostMultiplier = isBoosting ? 2 : 1;
+    const boostNote = isBoosting
+      ? `\n\n💎 你是伺服器贊助者！本次簽到獎勵已套用 **x${boostMultiplier} 倍加成**。`
+      : "";
+
     const userLevel = await getOrCreateUser(userId, guildId);
     let checkIn = await CheckIn.findOne({ userId, guildId });
     const startOfToday = new Date();
@@ -66,15 +74,32 @@ module.exports = {
         activityTotalReward =
           activityReward + Math.min((streak - 1) * 100, 2000); // 活躍值依天數增加
       }
+      if (isBoosting) {
+        mileageTotalReward *= boostMultiplier;
+        activityTotalReward *= boostMultiplier;
+      }
       const streakReward = StreakRewardByDay[streak];
       let extraMileage = 0;
       let extraReplyMsg;
       if (streakReward) {
-        extraReplyMsg = `\n\n${streakReward.message}`;
         extraMileage += streakReward.mileage;
       }
+      if (extraMileage && isBoosting) {
+        extraMileage *= boostMultiplier;
+      }
+      if (extraMileage)
+        extraReplyMsg = `\n\n${streakReward.message}，獲得 ${extraMileage} 里程！`;
 
       //===================//
+      console.log(
+        isBoosting,
+        boostMultiplier,
+        "",
+        mileageTotalReward,
+        activityTotalReward,
+        extraMileage
+      );
+
       // 發放獎勵
       userLevel.mileage += mileageTotalReward;
       userLevel.activity += activityTotalReward;
@@ -90,20 +115,16 @@ module.exports = {
         return;
       });
 
-      const user = await interaction.guild.members.fetch({
-        user: interaction.member.id,
-      });
-
       //=> 創建一個嵌入式消息
       try {
         console.log(
-          `user: ${user.displayName} [ activity: ${userLevel.activity}, mileage: ${userLevel.mileage} ]`
+          `✅ 簽到紀錄 user: ${user.displayName} [ 活躍值: ${userLevel.activity}, 里程: ${userLevel.mileage} ]  (🔥 ${activityTotalReward}, 🛤️ ${mileageTotalReward}, 🎁 ${extraMileage})`
         );
 
         await interaction.reply({
           content: `🏕️ 你邁出了今日的冒險第一步！\n\n🎁 獎勵內容：\n🔥 活躍值 +${activityTotalReward}\n🛤️ 里程　 +${mileageTotalReward}\n🏅 你已連續簽到 **${
             checkIn.streak
-          } 天**！ ${extraReplyMsg ?? ""}`,
+          } 天**！ ${extraReplyMsg ?? ""}${boostNote}`,
           ephemeral: true, // ✅ 私人訊息，只顯示給觸發指令的人
         });
 
