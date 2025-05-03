@@ -40,6 +40,9 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setTitle(`🎴 冒險者資料卡`)
+      .setImage(
+        "https://cdn.discordapp.com/attachments/1157094864979247124/1363509917335552242/rainbow_line.GIF?ex=68176e91&is=68161d11&hm=1f0a466c87e5fb103ec33008b5aae7d72996a3f6a3ad3d0830b3775c06719a3f&"
+      )
       .addFields(
         {
           name: "👤 暱稱",
@@ -54,14 +57,24 @@ module.exports = {
         { name: "活躍值", value: `🔥 ${level.activity}`, inline: true },
         { name: "里程", value: `🛤️ ${level.mileage}`, inline: true },
         {
+          name: "📘 Side Project 經驗",
+          value: `${level.spExp} **SP**`,
+          inline: true,
+        },
+        {
           name: "📅 連續簽到",
           value: `${checkIn?.streak || 0} 天`,
-          inline: false,
+          inline: true,
         },
         { name: "⏰ 上次簽到", value: `${displayTime}`, inline: true }
       )
       .setColor(0x00ccff)
       .setThumbnail(interaction.user.displayAvatarURL())
+      .setFooter({
+        text: "SPT",
+        iconURL:
+          "https://cdn.discordapp.com/emojis/1224251953555443812.webp?size=96",
+      })
       .setTimestamp();
 
     await interaction.reply({ embeds: [embed], ephemeral: true });
