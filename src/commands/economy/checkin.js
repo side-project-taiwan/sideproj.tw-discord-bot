@@ -29,13 +29,10 @@ module.exports = {
 
     // 取得使用者資料
     const userLevel = await getOrCreateUser(userId, guildId);
-    
-    /**
-     * @type {CheckIn | undefined}
-     */
     let checkIn = await CheckIn.findOne({ userId, guildId });
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
+
     if (
       !checkIn ||
       !checkIn.lastCheckInTime ||

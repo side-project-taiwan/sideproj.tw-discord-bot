@@ -1,6 +1,17 @@
 const { Schema, model } = require("mongoose");
 
 /**
+ * @typedef {import('mongoose').Document & {
+ *   userId: string,
+ *   guildId: string,
+ *   items: Array<{
+ *     key: string,
+ *     quantity: number
+ *   }>
+ * }} InventoryDocument
+ */
+
+/**
  * 玩家背包資料模型
  *
  * 每位使用者在每個 Discord 伺服器中擁有一份獨立的背包。

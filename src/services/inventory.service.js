@@ -4,11 +4,11 @@ const Inventory = require("../models/Inventory");
  * 取得或初始化玩家背包
  * @param {string} userId
  * @param {string} guildId
- * @returns {Promise<Inventory>}
+ * @returns {Promise<import('../models/Inventory').InventoryDocument>}
  */
 async function getOrCreateInventory(userId, guildId) {
   /**
-   * @type {Inventory}
+   * @type {import('../models/Inventory').InventoryDocument}
    */
   let inventory = await Inventory.findOne({ userId, guildId });
 

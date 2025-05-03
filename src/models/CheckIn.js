@@ -1,5 +1,21 @@
 const { Schema, model } = require("mongoose");
 
+/**
+ * @typedef {import('mongoose').Document & {
+ *   userId: string;
+ *   guildId: string;
+ *   lastCheckInTime: Date;
+ *   streak: number;
+ * }} CheckInDocument
+ */
+
+/**
+ * 簽到紀錄模型
+ *
+ * 每位使用者在每個 Discord 伺服器中擁有一份唯一簽到紀錄。
+ * - 用來記錄最後一次簽到時間
+ * - 用來追蹤連續簽到的天數 streak（連續性計算、UI 顯示、額外獎勵依據）
+ */
 const CheckInSchema = new Schema({
   /**
    * 使用者 ID
