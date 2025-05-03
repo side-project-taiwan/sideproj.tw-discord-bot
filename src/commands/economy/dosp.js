@@ -1,6 +1,6 @@
 const { env } = require("../../env");
 const { Client, Interaction } = require("discord.js");
-const { createUser } = require("../../services/level.service");
+const { getOrCreateUser } = require("../../services/level.service");
 const Level = require("../../models/Level");
 const SigninLog = require("../../models/SigninLog");
 const SpExpChange = require("../../models/SpExpChange");
@@ -29,9 +29,7 @@ module.exports = {
     // await interaction.deferReply();
 
     // 取得使用者資料
-    const userLevel =
-      (await Level.findOne({ userId, guildId })) ||
-      (await createUser(userId, guildId));
+    const userLevel = await getOrCreateUser(userId, guildId);
 
     // 檢查是否在冷卻中
     console.log("user: ", userLevel);

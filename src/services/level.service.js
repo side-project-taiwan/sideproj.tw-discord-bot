@@ -6,21 +6,28 @@ const Level = require("../models/Level");
  * @param {string} guildId
  * @returns {Promise<Level>} 新建並儲存的使用者等級物件
  */
-function createUser(userId, guildId) {
-  const userLevel = new Level({
-    userId,
-    guildId,
-    xp: 0,
-    activity: 0,
-    mileage: 0,
-    level: 0,
-    spExp: 0,
-    spSigninCooldown: Date.now(),
-  });
+async function getOrCreateUser(userId, guildId) {
+  /**
+   * @type {Level}
+   */
+  let user = await Level.findOne({ userId, guildId });
+  if (!user) {
+    user = new Level({
+      userId,
+      guildId,
+      xp: 0,
+      activity: 0,
+      mileage: 0,
+      level: 0,
+      spExp: 0,
+      spSigninCooldown: Date.now(),
+    });
+    await userLevel.save();
+  }
 
-  return userLevel.save(); // 回傳 Promise<Level>
+  return user;
 }
 
 module.exports = {
-  createUser,
+  getOrCreateUser,
 };

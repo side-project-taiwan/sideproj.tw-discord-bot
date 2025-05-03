@@ -3,7 +3,7 @@ const { Client, Interaction } = require("discord.js");
 const Level = require("../../models/Level");
 const CheckIn = require("../../models/CheckIn");
 const { StreakRewardByDay } = require("../../enums/streak.enum");
-const { createUser } = require("../../services/level.service");
+const { getOrCreateUser } = require("../../services/level.service");
 const { initCheckIn } = require("../../services/checkIn.service");
 module.exports = {
   /**
@@ -28,10 +28,8 @@ module.exports = {
     // await interaction.deferReply();
 
     // 取得使用者資料
-    const userLevel =
-      (await Level.findOne({ userId, guildId })) ||
-      (await createUser(userId, guildId));
-
+    const userLevel = await getOrCreateUser(userId, guildId);
+    
     /**
      * @type {CheckIn | undefined}
      */

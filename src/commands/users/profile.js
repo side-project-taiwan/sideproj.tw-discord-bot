@@ -2,7 +2,7 @@ const { env } = require("../../env");
 const Level = require("../../models/Level");
 const CheckIn = require("../../models/CheckIn");
 const { StreakRewardByDay } = require("../../enums/streak.enum");
-const { createUser } = require("../../services/level.service");
+const { getOrCreateUser } = require("../../services/level.service");
 const { EmbedBuilder, Client, Interaction } = require("discord.js");
 
 module.exports = {
@@ -22,11 +22,9 @@ module.exports = {
     const guildId = interaction.guild.id;
 
     const [level, checkIn] = await Promise.all([
-      Level.findOne({ userId, guildId }),
+      getOrCreateUser(userId, guildId),
       CheckIn.findOne({ userId, guildId }),
     ]);
-
-    if (!level) level = await createUser(userId, guildId);
 
     const displayTime =
       checkIn?.lastCheckInTime?.toLocaleString("zh-TW", {
