@@ -20,4 +20,24 @@ async function getOrCreateInventory(userId, guildId) {
   return inventory;
 }
 
-module.exports = { getOrCreateInventory };
+/**
+ * 將道具加入使用者背包（若已存在則累加數量）
+ * @param {string} userId
+ * @param {string} guildId
+ * @param {string} key 道具識別碼
+ * @param {number} quantity 新增數量
+ */
+async function addItemToInventory(userId, guildId, key, quantity = 1) {
+  const inventory = await getOrCreateInventory(userId, guildId);
+
+  const existing = inventory.items.find((item) => item.key === key);
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    inventory.items.push({ key, quantity });
+  }
+
+  await inventory.save();
+}
+
+module.exports = { getOrCreateInventory, addItemToInventory };

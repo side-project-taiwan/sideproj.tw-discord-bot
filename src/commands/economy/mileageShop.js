@@ -55,9 +55,6 @@ module.exports = {
 
     const embed = new EmbedBuilder()
       .setTitle("🛒 里程兌換商店")
-      // .setDescription(
-      //   // `請點擊下方按鈕來兌換商品。\n\n💼 你的當前里程：**${userLevel.mileage}** 點\n📅 每日簽到、活動可獲得更多里程。`
-      // )
       .setDescription("【 **請點擊下方按鈕來兌換商品** 】")
       .setColor(0x00ccff)
       .setFooter({

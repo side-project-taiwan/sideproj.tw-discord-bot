@@ -1,6 +1,7 @@
 const Level = require("../models/Level");
 const MileageShopItem = require("../models/MileageShopItem");
 const MileagePurchaseLog = require("../models/MileagePurchaseLog.js");
+const { addItemToInventory } = require("./inventory.service.js");
 
 async function purchaseItem(userId, guildId, itemKey) {
   const item = await MileageShopItem.findOne({
@@ -39,6 +40,10 @@ async function purchaseItem(userId, guildId, itemKey) {
   level.mileage -= item.mileageCost;
   await level.save();
 
+  // TODO: 執行給獎邏輯（依 rewardType）
+  // 加入背包
+  await addItemToInventory(userId, guildId, item.key, 1);
+
   // 記錄購買
   await MileagePurchaseLog.create({
     userId,
@@ -48,12 +53,10 @@ async function purchaseItem(userId, guildId, itemKey) {
     createdAt: new Date(),
   });
 
-  // TODO: 執行給獎邏輯（依 rewardType）
   console.log(
     `[商店兌換] userId: ${userId} 成功購買「${item.name}」` +
-    `｜消耗 ${item.mileageCost} 里程｜剩餘 ${level.mileage} 里程`
+      `｜消耗 ${item.mileageCost} 里程｜剩餘 ${level.mileage} 里程`
   );
-    
 
   return {
     name: item.name,
