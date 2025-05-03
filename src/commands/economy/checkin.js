@@ -2,6 +2,7 @@ const { env } = require("../../env");
 const { Client, Interaction } = require("discord.js");
 const Level = require("../../models/Level");
 const CheckIn = require("../../models/CheckIn");
+const { StreakRewardByDay } = require("../../enums/streak.enum");
 module.exports = {
   /**
    *
@@ -45,6 +46,7 @@ module.exports = {
         spSigninCooldown: Date.now() + 60 * 60 * 1000,
       });
     }
+
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
     if (
@@ -60,20 +62,49 @@ module.exports = {
         });
       }
 
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      yesterday.setHours(0, 0, 0, 0);
+
+      if (checkIn.lastCheckInTime >= yesterday) {
+        // 連續簽到
+        checkIn.streak = (checkIn.streak || 0) + 1;
+      } else {
+        // 中斷或第一次
+        checkIn.streak = 1;
+      }
+
       checkIn.lastCheckInTime = new Date();
-      await checkIn.save().catch((error) => {
-        console.log(`🚨 Error saving checkIn: ${error}`);
-        return;
-      });
 
       // 設定 每次簽到的獎勵區 //
       const mileageReward = 100;
       const activityReward = 1000;
+      const streak = checkIn.streak;
+      let mileageTotalReward = mileageReward;
+      let activityTotalReward = activityReward;
+      if (streak > 1) {
+        mileageTotalReward = mileageReward + Math.min((streak - 1) * 10, 200); // 每天多10，最多加到+200
+        activityTotalReward =
+          activityReward + Math.min((streak - 1) * 100, 2000); // 活躍值依天數增加
+      }
+      let extraMileage = 0;
+      let extraReplyMsg;
+      if (StreakRewardByDay[streak]) {
+        extraReplyMsg = `\n\n${StreakRewardByDay[streak].message}`;
+        extraMileage += StreakRewardByDay[streak].mileage;
+      }
+
       //===================//
+      // 發放獎勵
+      userLevel.mileage += mileageTotalReward;
+      userLevel.activity += activityTotalReward;
+      if (extraMileage) userLevel.mileage += extraMileage;
 
-      userLevel.mileage += mileageReward;
-      userLevel.activity += activityReward;
-
+      // 儲存變更
+      await checkIn.save().catch((error) => {
+        console.log(`🚨 Error saving checkIn: ${error}`);
+        return;
+      });
       await userLevel.save().catch((error) => {
         console.log(`🚨 Error saving level: ${error}`);
         return;
@@ -90,7 +121,9 @@ module.exports = {
         );
 
         await interaction.reply({
-          content: `🏕️ 你邁出了今日的冒險第一步！\n\n🎁 獎勵內容：\n🔥 活躍值 +${activityReward}\n🛤️ 里程　 +${mileageReward}`,
+          content: `🏕️ 你邁出了今日的冒險第一步！\n\n🎁 獎勵內容：\n🔥 活躍值 +${activityTotalReward}\n🛤️ 里程　 +${mileageTotalReward}\n🏅 你已連續簽到 **${
+            checkIn.streak
+          } 天**！ ${extraReplyMsg ?? ""}`,
           ephemeral: true, // ✅ 私人訊息，只顯示給觸發指令的人
         });
 
@@ -103,6 +136,10 @@ module.exports = {
           await activityLogChannel.send(
             `${displayTime} ✨【 ${user.displayName} 】已完成每日簽到！🏅`
           );
+          if (StreakRewardByDay[streak])
+            await activityLogChannel.send(
+              `🎉 恭喜 **${user.displayName}** 已連續簽到 **${streak} 天**！獲得額外 **${extraMileage} 里程** 🎁`
+            );
         }
         return;
       } catch (error) {

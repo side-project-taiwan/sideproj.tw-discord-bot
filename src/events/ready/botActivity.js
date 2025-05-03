@@ -9,7 +9,6 @@ module.exports = (client) => {
   client.user.setActivity(botActivityStatus[4]);
   setInterval(() => {
     const random = Math.floor(Math.random() * botActivityStatus.length);
-    console.log(random);
     client.user.setActivity(botActivityStatus[random]);
   }, 1000 * 60 * 60);
 };

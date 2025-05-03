@@ -13,6 +13,7 @@
   "dependencies": {
     "discord.js": "^14.12.1",
     "dotenv": "^16.4.5",
+    "lodash": "^4.17.21",
     "luxon": "^3.6.0",
     "mongoose": "^8.3.1",
     "ms": "^2.1.3",
