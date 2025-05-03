@@ -1,13 +1,11 @@
 const { env } = require("../../env");
-const {
-  Client,
-  Interaction,
-} = require("discord.js");
+const { Client, Interaction } = require("discord.js");
+const { createUser } = require("../../services/level.service");
 const Level = require("../../models/Level");
 const SigninLog = require("../../models/SigninLog");
 const SpExpChange = require("../../models/SpExpChange");
 const SP_HOUR = 23 - 8; // 23:00
-const SP_EXP_MAX = 20000
+const SP_EXP_MAX = 20000;
 module.exports = {
   /**
    *
@@ -19,22 +17,26 @@ module.exports = {
       interaction.reply("This command is only available inside a servers.");
       return;
     }
-    if (interaction.guild.id !== env.DISCORD_GUILD_ID) {
+    const userId = interaction.user.id;
+    const guildId = interaction.guild.id;
+
+    if (guildId !== env.DISCORD_GUILD_ID) {
       // 忽略其他伺服器
       // console.log(`interaction.guild.id: ${interaction.guild.id}`);
       // console.log(`env.GUILD_ID: ${env.DISCORD_GUILD_ID}`);
       return;
     }
     // await interaction.deferReply();
+
     // 取得使用者資料
-    let userLevel = await Level.findOne({
-      userId: interaction.member.id,
-      guildId: interaction.guild.id,
-    });
+    const userLevel =
+      (await Level.findOne({ userId, guildId })) ||
+      (await createUser(userId, guildId));
+
     // 檢查是否在冷卻中
-    console.log('user: ',userLevel);
+    console.log("user: ", userLevel);
     // 打卡時間一小時內不可重複打卡
-    if(!userLevel){
+    if (!userLevel) {
       userLevel = new Level({
         userId: interaction.member.id,
         guildId: interaction.guild.id,
@@ -46,7 +48,9 @@ module.exports = {
     } else {
       // 檢查是否已達上限
       if (userLevel.spExp >= SP_EXP_MAX) {
-        await interaction.reply(`您的經驗值已到達上限${SP_EXP_MAX}，請升級等級後再打卡(進行Side Project分享即可獲得升級道具)`);
+        await interaction.reply(
+          `您的經驗值已到達上限${SP_EXP_MAX}，請升級等級後再打卡(進行Side Project分享即可獲得升級道具)`
+        );
         return;
       }
       if (userLevel.spSigninCooldown > Date.now()) {
@@ -55,7 +59,9 @@ module.exports = {
           const remainingTime = userLevel.spSigninCooldown - Date.now();
           const remainingMinutes = Math.floor(remainingTime / 60000);
           const remainingSeconds = ((remainingTime % 60000) / 1000).toFixed(0);
-          await interaction.reply(`您已經打卡過了!請做滿一小時再打卡!還剩下: ${remainingMinutes}分鐘${remainingSeconds}秒`);
+          await interaction.reply(
+            `您已經打卡過了!請做滿一小時再打卡!還剩下: ${remainingMinutes}分鐘${remainingSeconds}秒`
+          );
           return;
         } catch (error) {
           console.log(`🚨 Error creating embed: ${error}`);
@@ -72,20 +78,20 @@ module.exports = {
     }).sort({ startTime: -1 });
     let sameTimeSignins = 0;
     let teamExp = 0;
-    if(lastSignin){
+    if (lastSignin) {
       sameTimeSignins = await SigninLog.countDocuments({
         userId: { $ne: interaction.member.id },
         guildId: interaction.guild.id,
-        endTime: { $gt: lastSignin.startTime }, 
+        endTime: { $gt: lastSignin.startTime },
         startTime: { $lt: lastSignin.endTime },
       });
       console.log(`sameTimeSignins: ${sameTimeSignins}`);
-      if(sameTimeSignins){
+      if (sameTimeSignins) {
         let multiple = 1;
         //如果打卡時間為23:00，獲得兩倍經驗
         const hr = lastSignin.startTime.getHours();
         console.log(`last signin hr: ${hr}`);
-        if(hr === SP_HOUR){
+        if (hr === SP_HOUR) {
           multiple = 2;
         }
         teamExp = sameTimeSignins * 5 * multiple;
@@ -96,14 +102,14 @@ module.exports = {
         userId: interaction.member.id,
         guildId: interaction.guild.id,
         signinId: lastSignin._id,
-        reason: 'teamBonus',
+        reason: "teamBonus",
       });
-      if(!alreadyCalcLog){
+      if (!alreadyCalcLog) {
         const spExpChange = new SpExpChange({
           userId: interaction.member.id,
           guildId: interaction.guild.id,
           signinId: lastSignin._id,
-          reason: 'teamBonus',
+          reason: "teamBonus",
           expChange: teamExp,
           updatedExp: userLevel.spExp,
         });
@@ -115,7 +121,7 @@ module.exports = {
     }
     // 給予本次打卡經驗值
     let exp = 100;
-    let replyString = `打卡開始進行Side Project, 獲得 ${exp} SP經驗!`
+    let replyString = `打卡開始進行Side Project, 獲得 ${exp} SP經驗!`;
     let date = new Date();
     let hour = date.getHours();
     // console.log(`hour: ${hour}`);
@@ -130,7 +136,7 @@ module.exports = {
       console.log(`🚨 Error saving level: ${error}`);
       return;
     });
-    if(sameTimeSignins){
+    if (sameTimeSignins) {
       replyString += `\n上次打卡組隊人數: ${sameTimeSignins}, 額外獲得團隊加成獎勵 ${teamExp} SP經驗!`;
     }
     // 寫入打卡紀錄
@@ -151,7 +157,7 @@ module.exports = {
       signinId: signinLog._id,
       expChange: exp,
       updatedExp: userLevel.spExp,
-      reason: 'signin',
+      reason: "signin",
     });
     await spExpChange.save().catch((error) => {
       console.log(`🚨 Error saving spExpChange: ${error}`);

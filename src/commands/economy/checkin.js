@@ -3,6 +3,8 @@ const { Client, Interaction } = require("discord.js");
 const Level = require("../../models/Level");
 const CheckIn = require("../../models/CheckIn");
 const { StreakRewardByDay } = require("../../enums/streak.enum");
+const { createUser } = require("../../services/level.service");
+const { initCheckIn } = require("../../services/checkIn.service");
 module.exports = {
   /**
    *
@@ -14,7 +16,10 @@ module.exports = {
       interaction.reply("This command is only available inside a servers.");
       return;
     }
-    if (interaction.guild.id !== env.DISCORD_GUILD_ID) {
+    const userId = interaction.user.id;
+    const guildId = interaction.guild.id;
+
+    if (guildId !== env.DISCORD_GUILD_ID) {
       // 忽略其他伺服器
       // console.log(`interaction.guild.id: ${interaction.guild.id}`);
       // console.log(`env.GUILD_ID: ${env.DISCORD_GUILD_ID}`);
@@ -23,30 +28,14 @@ module.exports = {
     // await interaction.deferReply();
 
     // 取得使用者資料
-    let userLevel = await Level.findOne({
-      userId: interaction.member.id,
-      guildId: interaction.guild.id,
-    });
-    let checkIn = await CheckIn.findOne({
-      userId: interaction.member.id,
-      guildId: interaction.guild.id,
-    });
+    const userLevel =
+      (await Level.findOne({ userId, guildId })) ||
+      (await createUser(userId, guildId));
 
-    // 檢查是否有使用者
-    if (!userLevel) {
-      // 沒有的話初始使用者
-      userLevel = new Level({
-        userId: interaction.member.id,
-        guildId: interaction.guild.id,
-        xp: 0,
-        activity: 0,
-        mileage: 0,
-        level: 0,
-        spExp: 0,
-        spSigninCooldown: Date.now() + 60 * 60 * 1000,
-      });
-    }
-
+    /**
+     * @type {CheckIn | undefined}
+     */
+    let checkIn = await CheckIn.findOne({ userId, guildId });
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
     if (
@@ -55,13 +44,8 @@ module.exports = {
       checkIn.lastCheckInTime < startOfToday
     ) {
       if (!checkIn) {
-        // 第一次
-        checkIn = new CheckIn({
-          userId: interaction.member.id,
-          guildId: interaction.guild.id,
-        });
+        checkIn = await initCheckIn(userId, guildId);
       }
-
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       yesterday.setHours(0, 0, 0, 0);
@@ -87,11 +71,12 @@ module.exports = {
         activityTotalReward =
           activityReward + Math.min((streak - 1) * 100, 2000); // 活躍值依天數增加
       }
+      const streakReward = StreakRewardByDay[streak];
       let extraMileage = 0;
       let extraReplyMsg;
-      if (StreakRewardByDay[streak]) {
-        extraReplyMsg = `\n\n${StreakRewardByDay[streak].message}`;
-        extraMileage += StreakRewardByDay[streak].mileage;
+      if (streakReward) {
+        extraReplyMsg = `\n\n${streakReward.message}`;
+        extraMileage += streakReward.mileage;
       }
 
       //===================//
@@ -136,7 +121,7 @@ module.exports = {
           await activityLogChannel.send(
             `${displayTime} ✨【 ${user.displayName} 】已完成每日簽到！🏅`
           );
-          if (StreakRewardByDay[streak])
+          if (streakReward)
             await activityLogChannel.send(
               `🎉 恭喜 **${user.displayName}** 已連續簽到 **${streak} 天**！獲得額外 **${extraMileage} 里程** 🎁`
             );
@@ -168,6 +153,7 @@ function formatTaiwanTime(date) {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
     hourCycle: "h23", // ✅ 指定 24 小時制，避免出現 24:00 或上午下午
   });
 
