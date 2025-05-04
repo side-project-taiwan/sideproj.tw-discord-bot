@@ -34,9 +34,8 @@ module.exports = {
         day: "2-digit",
       }) || "尚未簽到";
 
-    const user = await interaction.guild.members.fetch({
-      user: userId,
-    });
+    const user = await interaction.guild.members.fetch(userId);
+    const avatarUrl = user.displayAvatarURL();
 
     const embed = new EmbedBuilder()
       .setTitle(`🎴 冒險者資料卡`)
@@ -69,7 +68,7 @@ module.exports = {
         { name: "⏰ 上次簽到", value: `${displayTime}`, inline: true }
       )
       .setColor(0x00ccff)
-      .setThumbnail(interaction.user.displayAvatarURL())
+      .setThumbnail(avatarUrl)
       .setFooter({
         text: "SPT",
         iconURL:

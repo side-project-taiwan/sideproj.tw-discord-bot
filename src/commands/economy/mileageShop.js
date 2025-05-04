@@ -1,3 +1,4 @@
+const { env } = require("../../env");
 const {
   SlashCommandBuilder,
   ActionRowBuilder,
@@ -22,15 +23,29 @@ module.exports = {
    * @param {Interaction} interaction
    */
   callback: async (client, interaction) => {
+    if (!interaction.inGuild()) {
+      interaction.reply("This command is only available inside a servers.");
+      return;
+    }
+    const userId = interaction.user.id;
+    const guildId = interaction.guild.id;
+
+    if (guildId !== env.DISCORD_GUILD_ID) return;
+
+    // 取得使用者資料
+    const user = await interaction.guild.members.fetch(userId);
+    const isBoosting = !!user.premiumSince;
+
     const items = await MileageShopItem.find({ isActive: true }).sort({
       mileageCost: 1,
     });
     if (!items.length) {
       return interaction.reply({
         content: "目前沒有可兌換的商品。",
-        // ephemeral: true,
+        ephemeral: true,
       });
     }
+
     // 取得使用者資料
     let userLevel = await Level.findOne({
       userId: interaction.member.id,
@@ -49,18 +64,11 @@ module.exports = {
         spSigninCooldown: Date.now() + 60 * 60 * 1000,
       });
     }
-    const user = await interaction.guild.members.fetch({
-      user: interaction.member.id,
-    });
 
     const embed = new EmbedBuilder()
       .setTitle("🛒 里程兌換商店")
       .setDescription("【 **請點擊下方按鈕來兌換商品** 】")
       .setColor(0x00ccff)
-      .setFooter({
-        text: `${user.displayName} 的里程資訊`,
-        iconURL: interaction.user.displayAvatarURL(),
-      })
       .setTimestamp()
       .addFields(
         {
@@ -75,6 +83,20 @@ module.exports = {
         }
       );
 
+    if (isBoosting) {
+      embed.setFooter({
+        text: `贊助者專屬折扣生效中！享有尊榮 8 折優惠 ✨`,
+        iconURL:
+          "https://cdn.discordapp.com/emojis/992112231561056326.webp?size=240",
+      });
+    } else {
+      embed.setFooter({
+        text: `贊助專屬｜立即享受「尊榮 8 折優惠」，更聰明兌換每一份資源 ✨`,
+        iconURL:
+          "https://cdn.discordapp.com/emojis/1319734666743255130.webp?size=240",
+      });
+    }
+
     const rows = [];
     let currentRow = new ActionRowBuilder();
 
@@ -82,7 +104,7 @@ module.exports = {
       const item = items[i];
       const button = new ButtonBuilder()
         .setCustomId(`shop_${item.key}`)
-        .setLabel(`${item.name}（${item.mileageCost} 里程）`)
+        .setLabel(`${item.name} ${formatShopPrice(item, isBoosting)}`)
         .setStyle(ButtonStyle.Primary);
 
       currentRow.addComponents(button);
@@ -101,3 +123,15 @@ module.exports = {
     });
   },
 };
+
+function formatShopPrice(item, isBoosting) {
+  const originalPrice = item.mileageCost;
+  const discount = isBoosting ? 0.8 : 1;
+  const finalPrice = Math.floor(originalPrice * discount);
+
+  if (isBoosting) {
+    return `💎 ${finalPrice} 里程（原價 ${originalPrice}）`;
+  } else {
+    return `${originalPrice} 里程`;
+  }
+}

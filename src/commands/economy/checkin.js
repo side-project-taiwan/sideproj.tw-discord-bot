@@ -91,15 +91,6 @@ module.exports = {
         extraReplyMsg = `\n\n${streakReward.message}，獲得 ${extraMileage} 里程！`;
 
       //===================//
-      console.log(
-        isBoosting,
-        boostMultiplier,
-        "",
-        mileageTotalReward,
-        activityTotalReward,
-        extraMileage
-      );
-
       // 發放獎勵
       userLevel.mileage += mileageTotalReward;
       userLevel.activity += activityTotalReward;
@@ -118,7 +109,7 @@ module.exports = {
       //=> 創建一個嵌入式消息
       try {
         console.log(
-          `✅ 簽到紀錄 user: ${user.displayName} [ 活躍值: ${userLevel.activity}, 里程: ${userLevel.mileage} ]  (🔥 ${activityTotalReward}, 🛤️ ${mileageTotalReward}, 🎁 ${extraMileage})`
+          `✅ 簽到紀錄 user: ${user.displayName}(${userId}) [ 活躍值: ${userLevel.activity}, 里程: ${userLevel.mileage} ]  (🔥 ${activityTotalReward}, 🛤️ ${mileageTotalReward}, 🎁 ${extraMileage})`
         );
 
         await interaction.reply({
@@ -135,11 +126,11 @@ module.exports = {
         if (activityLogChannel && activityLogChannel.isTextBased()) {
           const displayTime = formatTaiwanTime(new Date());
           await activityLogChannel.send(
-            `${displayTime} ✨【 ${user.displayName} 】已完成每日簽到！🏅`
+            `${displayTime} ✨【 <@${userId}> 】已完成每日簽到！🏅`
           );
           if (streakReward)
             await activityLogChannel.send(
-              `🎉 恭喜 **${user.displayName}** 已連續簽到 **${streak} 天**！獲得額外 **${extraMileage} 里程** 🎁`
+              `🎉 恭喜 <@${userId}> 已連續簽到 **${streak} 天**！獲得額外 **${extraMileage} 里程** 🎁`
             );
         }
         return;

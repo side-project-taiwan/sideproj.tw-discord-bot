@@ -62,17 +62,17 @@ module.exports = {
     try {
       const levelEmbed = new EmbedBuilder()
         .setColor("#f47fff") // 设置embed颜色
-        .setTitle("等级信息") // 设置embed标题
-        .setDescription(`这是 <@${fetchedLevel.userId}> 的等级信息。`) // 描述中可以提及用户
+        .setTitle("等級卡") // 设置embed标题
+        .setDescription(`這是 <@${fetchedLevel.userId}> 的等級資料。`) // 描述中可以提及用户
         .addFields(
           { name: "等级", value: fetchedLevel.level.toString(), inline: true },
-          { name: "经验", value: fetchedLevel.xp.toString(), inline: true },
+          { name: "經驗", value: fetchedLevel.xp.toString(), inline: true },
           { name: "排名", value: currentRank.toString(), inline: true },
-          {
-            name: "符號",
-            value: "<:ExpressJs:1226458365266231357>",
-            inline: false,
-          },
+          // {
+          //   name: "符號",
+          //   value: "<:ExpressJs:1226458365266231357>",
+          //   inline: false,
+          // },
           {
             name: "下一级所需經驗值",
             value: (
@@ -82,15 +82,14 @@ module.exports = {
           }
         )
         .setAuthor({
-          name: targetUserObj.user.displayName,
-          iconURL: targetUserObj.user.displayAvatarURL({ dynamic: true }),
+          name: targetUserObj.displayName,
+          iconURL: targetUserObj.displayAvatarURL(),
         })
-        .setImage("https://www.parazeni.app/03.gif")
-        .setURL("https://www.parazeni.app/")
         .setTimestamp() // 在embed中添加时间戳
         .setFooter({
           text: "等级系统",
-          iconURL: "https://i.imgur.com/wSTFkRM.png",
+          iconURL:
+            "https://cdn.discordapp.com/emojis/1320147939561046176.webp?size=240",
         }); // 底部的文字和图标
 
       // 在频道中发送embed消息
