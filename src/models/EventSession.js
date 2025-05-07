@@ -1,6 +1,21 @@
 const { Schema, model } = require("mongoose");
 
 /**
+ * @typedef {import('mongoose').Document & {
+*   guildId: string;
+*   channelId: string;
+*   topic: string;
+*   description: string;
+*   hostId: string;
+*   speakerIds: string[];
+*   startTime: Date | null;
+*   endTime: Date | null;
+*   participants: Map<string, { join: Date; leave: Date; }[]>;
+* }} EventSessionDocument
+*/
+
+
+/**
  * Discord 語音活動紀錄
  */
 const EventSessionSchema = new Schema(

@@ -38,6 +38,20 @@ async function createEventDraft({
   }
 }
 
+/**
+ * 找出尚未開始的活動草稿清單（依照是否有 startTime 判斷）
+ * @param {string} guildId
+ * @returns {Promise<EventSession[]>}
+ */
+async function findTodayDraftEvents(guildId) {
+  return await EventSession.find({
+    guildId,
+    startTime: null,
+    endTime: null,
+  }).sort({ createdAt: 1 });
+}
+
 module.exports = {
   createEventDraft,
+  findTodayDraftEvents,
 };
