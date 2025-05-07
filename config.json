@@ -7,5 +7,8 @@
   },
   "channels": {
     "eventStage": "1223824043954671648"
+  },
+  "featureToggle": {
+    "mileage_shop": "mileage_shop"
   }
 }

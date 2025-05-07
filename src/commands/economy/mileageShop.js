@@ -11,6 +11,8 @@ const {
 
 const MileageShopItem = require("../../models/MileageShopItem");
 const Level = require("../../models/Level");
+const { isFeatureEnabled } = require("../../services/featureToggle.service");
+const { featureToggle } = require("../../../config.json");
 
 module.exports = {
   name: "里程商店",
@@ -35,6 +37,20 @@ module.exports = {
     // 取得使用者資料
     const user = await interaction.guild.members.fetch(userId);
     const isBoosting = !!user.premiumSince;
+    let footerContext = {};
+    if (isBoosting) {
+      footerContext = {
+        text: `贊助者專屬折扣生效中！享有尊榮 8 折優惠 ✨`,
+        iconURL:
+          "https://cdn.discordapp.com/emojis/992112231561056326.webp?size=240",
+      };
+    } else {
+      footerContext = {
+        text: `贊助專屬｜立即享受「尊榮 8 折優惠」，更聰明兌換每一份資源 ✨`,
+        iconURL:
+          "https://cdn.discordapp.com/emojis/1319734666743255130.webp?size=240",
+      };
+    }
 
     const items = await MileageShopItem.find({ isActive: true }).sort({
       mileageCost: 1,
@@ -64,6 +80,30 @@ module.exports = {
         spSigninCooldown: Date.now() + 60 * 60 * 1000,
       });
     }
+    if (!(await isFeatureEnabled(featureToggle.mileage_shop))) {
+      const embed = new EmbedBuilder()
+        .setDescription("⚠️ **商店維護中**")
+        .setColor("Red")
+        .setTimestamp()
+        .addFields(
+          {
+            name: "📝 說明",
+            value: "簽到與活動可以獲得更多里程！",
+            inline: true,
+          },
+          {
+            name: "🛤️ 當前里程",
+            value: `${userLevel.mileage} 點`,
+            inline: false,
+          }
+        )
+        .setFooter(footerContext);
+
+      return await interaction.reply({
+        embeds: [embed],
+        ephemeral: true,
+      });
+    }
 
     const embed = new EmbedBuilder()
       .setTitle("🛒 里程兌換商店")
@@ -81,21 +121,8 @@ module.exports = {
           value: `${userLevel.mileage} 點`,
           inline: false,
         }
-      );
-
-    if (isBoosting) {
-      embed.setFooter({
-        text: `贊助者專屬折扣生效中！享有尊榮 8 折優惠 ✨`,
-        iconURL:
-          "https://cdn.discordapp.com/emojis/992112231561056326.webp?size=240",
-      });
-    } else {
-      embed.setFooter({
-        text: `贊助專屬｜立即享受「尊榮 8 折優惠」，更聰明兌換每一份資源 ✨`,
-        iconURL:
-          "https://cdn.discordapp.com/emojis/1319734666743255130.webp?size=240",
-      });
-    }
+      )
+      .setFooter(footerContext);
 
     const rows = [];
     let currentRow = new ActionRowBuilder();

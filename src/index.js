@@ -2,6 +2,9 @@ const { Client, GatewayIntentBits } = require("discord.js");
 const mongoose = require("mongoose");
 const { env } = require("./env");
 const eventHandler = require("./handlers/eventHandler");
+const { featureToggle } = require("../config.json");
+const { ensureFeatureToggles } = require("./services/featureToggle.service");
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -15,8 +18,9 @@ const client = new Client({
   // Connect to MongoDB
   try {
     mongoose.set("strictQuery", false);
-    const result = await mongoose.connect(env.MONGO_URI);
+    await mongoose.connect(env.MONGO_URI);
     console.log("Connected to MongoDB");
+    await ensureFeatureToggles(Object.values(featureToggle));
   } catch (error) {
     console.log(err);
   }

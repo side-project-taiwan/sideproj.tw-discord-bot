@@ -1,5 +1,7 @@
 const { purchaseItem } = require("../../../services/shop.service"); // 你的兌換邏輯
 const { EmbedBuilder, Client, Interaction } = require("discord.js");
+const { featureToggle } = require("../../../../config.json");
+const { isFeatureEnabled } = require("../../../services/featureToggle.service");
 
 /**
  *
@@ -12,6 +14,16 @@ module.exports = async (client, interaction) => {
   const itemKey = interaction.customId; // e.g. shop_rare_box
 
   try {
+    if (!(await isFeatureEnabled(featureToggle.mileage_shop))) {
+      const embed = new EmbedBuilder()
+        .setDescription("⚠️ **商店維護中**")
+        .setColor("Red");
+      return await interaction.reply({
+        embeds: [embed],
+        ephemeral: true,
+      });
+    }
+
     const user = await interaction.guild.members.fetch(userId);
     const isBoosting = !!user.premiumSince;
     const result = await purchaseItem(userId, guildId, itemKey, isBoosting);
@@ -45,8 +57,10 @@ module.exports = async (client, interaction) => {
       ephemeral: true,
     });
   } catch (error) {
+    console.log(`[handleShopPurchase] error: ${error.message}`);
+
     await interaction.reply({
-      content: `❌ ${error.message}`,
+      content: `❌ 操作失敗，多次失敗後請聯絡管理員！`,
       ephemeral: true,
     });
   }
