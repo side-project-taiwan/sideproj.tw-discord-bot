@@ -92,8 +92,8 @@ module.exports = {
         .setStyle(ButtonStyle.Primary);
 
       currentRow.addComponents(button);
-      rows.push(currentRow);
     }
+    rows.push(currentRow);
     await interaction.reply({
       embeds: [embed],
       components: rows,
