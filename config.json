@@ -6,7 +6,8 @@
     "eventHost": "1368971859227312128"
   },
   "channels": {
-    "eventStage": "1223824043954671648"
+    "eventStage": "1223824043954671648",
+    "adventureLog": "1367522119818285188"
   },
   "featureToggle": {
     "mileage_shop": "mileage_shop"

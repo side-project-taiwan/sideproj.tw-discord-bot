@@ -2,9 +2,13 @@ const { env } = require("../../env");
 const { Client, Interaction } = require("discord.js");
 const Level = require("../../models/Level");
 const CheckIn = require("../../models/CheckIn");
-const { StreakRewardByDay } = require("../../enums/streak.enum");
 const { getOrCreateUser } = require("../../services/level.service");
 const { initCheckIn } = require("../../services/checkIn.service");
+const {
+  getNextStreakInfo,
+  getStreakRewardResult,
+} = require("../../services/streak.service");
+const { channels } = require("../../../config.json");
 
 module.exports = {
   /**
@@ -32,10 +36,20 @@ module.exports = {
     const user = await interaction.guild.members.fetch(userId);
     const isBoosting = !!user.premiumSince;
     const boostMultiplier = isBoosting ? 2 : 1;
-    const boostNote = isBoosting
-      ? `\n\n💎 你是伺服器贊助者！本次簽到獎勵已套用 **x${boostMultiplier} 倍加成**。`
-      : "";
-
+    let footerContext = {};
+    if (isBoosting) {
+      footerContext = {
+        text: `你是伺服器贊助者！本次簽到獎勵已套用 x${boostMultiplier} 倍加成 ✨`,
+        iconURL:
+          "https://cdn.discordapp.com/emojis/992112231561056326.webp?size=240",
+      };
+    } else {
+      footerContext = {
+        text: `贊助專屬｜加入伺服器贊助者，即可享有每日簽到 x${boostMultiplier} 倍獎勵加成 🎁`,
+        iconURL:
+          "https://cdn.discordapp.com/emojis/1319734666743255130.webp?size=240",
+      };
+    }
     const userLevel = await getOrCreateUser(userId, guildId);
     let checkIn = await CheckIn.findOne({ userId, guildId });
     const startOfToday = new Date();
@@ -78,17 +92,18 @@ module.exports = {
         mileageTotalReward *= boostMultiplier;
         activityTotalReward *= boostMultiplier;
       }
-      const streakReward = StreakRewardByDay[streak];
-      let extraMileage = 0;
-      let extraReplyMsg;
-      if (streakReward) {
-        extraMileage += streakReward.mileage;
-      }
-      if (extraMileage && isBoosting) {
-        extraMileage *= boostMultiplier;
-      }
-      if (extraMileage)
-        extraReplyMsg = `\n\n${streakReward.message}，獲得 ${extraMileage} 里程！`;
+
+      const rewardResult = getStreakRewardResult(
+        streak,
+        isBoosting,
+        boostMultiplier
+      );
+      const extraReplyMsg = rewardResult?.message ?? "";
+      const extraMileage = rewardResult?.mileage ?? 0;
+
+      const nextRewardInfo = getNextStreakInfo(streak);
+      const nextHint =
+        !extraReplyMsg && nextRewardInfo?.hint ? nextRewardInfo.hint : "";
 
       //===================//
       // 發放獎勵
@@ -111,24 +126,40 @@ module.exports = {
         console.log(
           `✅ 簽到紀錄 user: ${user.displayName}(${userId}) [ 活躍值: ${userLevel.activity}, 里程: ${userLevel.mileage} ]  (🔥 ${activityTotalReward}, 🛤️ ${mileageTotalReward}, 🎁 ${extraMileage})`
         );
+        const { EmbedBuilder } = require("discord.js");
+
+        const embed = new EmbedBuilder()
+          .setTitle("🏕️ 你邁出了今日的冒險第一步！")
+          .setColor(0x00ccff)
+          .setDescription(
+            [
+              `🎁 **獎勵內容**`,
+              `🔥 活躍值 +${activityTotalReward}`,
+              `🛤️ 里程　 +${mileageTotalReward}`,
+              `🏅 你已連續簽到 **${checkIn.streak} 天**！`,
+              `${extraReplyMsg || nextHint || ""}`,
+            ]
+              .filter(Boolean)
+              .join("\n")
+          )
+          .setFooter(footerContext)
+          .setTimestamp();
 
         await interaction.reply({
-          content: `🏕️ 你邁出了今日的冒險第一步！\n\n🎁 獎勵內容：\n🔥 活躍值 +${activityTotalReward}\n🛤️ 里程　 +${mileageTotalReward}\n🏅 你已連續簽到 **${
-            checkIn.streak
-          } 天**！ ${extraReplyMsg ?? ""}${boostNote}`,
-          ephemeral: true, // ✅ 私人訊息，只顯示給觸發指令的人
+          embeds: [embed],
+          ephemeral: true,
         });
 
-        const channelID = "1367522119818285188"; // 冒險者日誌
-        const activityLogChannel =
-          interaction.client.channels.cache.get(channelID);
+        const activityLogChannel = interaction.client.channels.cache.get(
+          channels.adventureLog
+        );
 
         if (activityLogChannel && activityLogChannel.isTextBased()) {
           const displayTime = formatTaiwanTime(new Date());
           await activityLogChannel.send(
             `${displayTime} ✨【 <@${userId}> 】已完成每日簽到！🏅`
           );
-          if (streakReward)
+          if (rewardResult)
             await activityLogChannel.send(
               `🎉 恭喜 <@${userId}> 已連續簽到 **${streak} 天**！獲得額外 **${extraMileage} 里程** 🎁`
             );
