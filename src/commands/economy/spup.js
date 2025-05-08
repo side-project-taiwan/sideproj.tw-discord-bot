@@ -24,7 +24,7 @@ module.exports = {
    */
   callback: async (client, interaction) => {
     if (!interaction.inGuild()) {
-      interaction.reply("This command is only available inside a servers.");
+      interaction.reply("This command is only available inside a server.");
       return;
     }
     const userId = interaction.member.id;
