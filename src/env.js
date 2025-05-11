@@ -11,6 +11,9 @@ const environmentSchema = z.object({
     const parsed = parseInt(val, 10);
     return !isNaN(parsed) ? parsed : 3000; // 使用默認值3000如果轉換失敗
   }, z.number()),
+
+  // GOOGLE
+  GOOGLE_CALENDAR_ID: z.string(),
 });
 
 const {
@@ -20,6 +23,7 @@ const {
   DISCORD_GUILD_ID,
   MONGO_URI,
   PORT,
+  GOOGLE_CALENDAR_ID,
 } = process.env;
 
 const environment = environmentSchema.safeParse({
@@ -29,6 +33,7 @@ const environment = environmentSchema.safeParse({
   DISCORD_GUILD_ID,
   MONGO_URI,
   PORT,
+  GOOGLE_CALENDAR_ID,
 });
 
 if (!environment.success) {
