@@ -57,9 +57,10 @@ module.exports = {
           const remainingTime = userLevel.spSigninCooldown - Date.now();
           const remainingMinutes = Math.floor(remainingTime / 60000);
           const remainingSeconds = ((remainingTime % 60000) / 1000).toFixed(0);
-          await interaction.reply(
-            `您已經打卡過了!請做滿一小時再打卡!還剩下: ${remainingMinutes}分鐘${remainingSeconds}秒`
-          );
+          await interaction.reply({
+            content: `您已經打卡過了!請做滿一小時再打卡!還剩下: ${remainingMinutes}分鐘${remainingSeconds}秒`,
+            ephemeral: true,
+          })
           return;
         } catch (error) {
           console.log(`🚨 Error creating embed: ${error}`);
