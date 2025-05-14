@@ -78,7 +78,7 @@ module.exports = async (client, interaction) => {
       ephemeral: true,
     });
   } catch (error) {
-    console.log(`[handleShopPurchase] error: ${error.message}`);
+    console.log(`[handleSpLevelUp] error: ${error.message}`);
 
     await interaction.reply({
       content: `❌ 操作失敗，多次失敗後請聯絡管理員！`,
