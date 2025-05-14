@@ -29,7 +29,7 @@ module.exports = async (client, interaction) => {
       return;
     }
     // 計算經驗值換算等級
-    const { newSpLevel, remainingExp, expChange } = calculateSpLevelUp({nowSpLevel: userLevel.spLevel, nowSpExp: userLevel.spExp});
+    const { newSpLevel, remainingExp, cost } = calculateSpLevelUp({nowSpLevel: userLevel.spLevel, nowSpExp: userLevel.spExp});
     console.log("inventory: ", inventory);
     console.log("itemKey: ", itemKey);
     if(newSpLevel == userLevel.spLevel) {
@@ -53,7 +53,7 @@ module.exports = async (client, interaction) => {
     const spExpChange = new SpExpChange({
       userId,
       guildId,
-      expChange,
+      expChange: -cost, //紀錄是負的代表扣除
       updatedExp: userLevel.spExp,
       reason: "levelUp",
     });
