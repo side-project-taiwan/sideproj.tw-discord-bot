@@ -35,10 +35,10 @@ async function getOrCreateUser(userId, guildId) {
  * @param {Object} currentSpInfo 當前的 SP 等級與經驗值
  * @param {number} currentSpInfo.nowSpLevel 當前的 SP 等級
  * @param {number} currentSpInfo.nowSpExp 當前的 SP 經驗值
- * @returns {Object} 包含升級後的 SP 等級和剩餘經驗值
- * @returns {number} return.newSpLevel 升級後的 SP 等級
- * @returns {number} return.remainingExp 剩餘的 SP 經驗值
- * @returns {number} return.expChange 經驗值變化量
+ * @returns {Object} 返回的物件包含以下屬性：
+ * - {number} newSpLevel 升級後的 SP 等級
+ * - {number} remainingExp 剩餘的 SP 經驗值
+ * - {number} expChange 經驗值變化量
  * @example
  * const { newSpLevel, remainingExp } = calculateSpLevelUp({ nowSpLevel: 1, nowSpExp: 250 });
  * console.log(`新SP等級: ${newSpLevel}, 剩餘經驗值: ${remainingExp}`);
