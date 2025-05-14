@@ -30,8 +30,6 @@ module.exports = async (client, interaction) => {
     }
     // 計算經驗值換算等級
     const { newSpLevel, remainingExp, cost } = calculateSpLevelUp({nowSpLevel: userLevel.spLevel, nowSpExp: userLevel.spExp});
-    console.log("inventory: ", inventory);
-    console.log("itemKey: ", itemKey);
     if(newSpLevel == userLevel.spLevel) {
       await interaction.reply({
         content: `❌ 你的經驗值不足以升級！`,
