@@ -7,7 +7,7 @@ const {
   Client,
   Interaction,
 } = require("discord.js");
-const { getOrCreateUser } = require("../../services/level.service");
+const { getOrCreateUser, calculateSpLevelUp } = require("../../services/level.service");
 const { getOrCreateInventory } = require("../../services/inventory.service");
 const MileageShopItem = require("../../models/MileageShopItem");
 
@@ -45,6 +45,7 @@ module.exports = {
         return ["job_scroll", "wisdom_crystal", "qigu_egg"].includes(item.key)
       })
     }
+    const { newSpLevel, remainingExp } = calculateSpLevelUp({nowSpLevel: userLevel.spLevel, nowSpExp: userLevel.spExp});
     const embed = new EmbedBuilder()
       .setTitle("SP等級提升")
       .setDescription("【 **請選擇要使用的道具** 】")
@@ -56,10 +57,25 @@ module.exports = {
           inline: true,
         },
         {
+          name: "🛤️ 當前SP等級",
+          value: `${userLevel.spLevel || 0}`,
+          inline: false,
+        },
+        {
           name: "🛤️ 當前SP經驗",
           value: `${userLevel.spExp}`,
           inline: false,
-        }
+        },
+        {
+          name: "🛤️ 升級後SP等級",
+          value: `${newSpLevel}`,
+          inline: false,
+        },
+        {
+          name: "🛤️ 升級後剩餘經驗",
+          value: `${remainingExp}`,
+          inline: false,
+        },
       );
     
 

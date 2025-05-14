@@ -50,6 +50,14 @@ const LevelSchema = new Schema({
     type: Number,
     default: 0,
   },
+    /**
+   * Side Project 等級
+   * 使用者的Side Project 的等級。
+   */
+  spLevel: {
+    type: Number,
+    default: 0,
+  },
   spSigninCooldown: {
     type: Date,
     default: Date.now,

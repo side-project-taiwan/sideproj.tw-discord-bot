@@ -2,7 +2,7 @@ const { Client, Interaction } = require("discord.js");
 const { roles } = require("../../../config.json");
 const handleRoleToggle = require("./button/handleRoleToggle");
 const handleShopPurchase = require("./button/handleShopPurchase");
-
+const handleSpLevelUp = require("./button/handleSpLevelUp");
 /**
  *
  * @param {Client} client
@@ -13,6 +13,9 @@ module.exports = async (client, interaction) => {
 
   if (interaction.customId.startsWith("shop_")) {
     return handleShopPurchase(client, interaction);
+  }
+  if (interaction.customId.startsWith("spup_")) {
+    return handleSpLevelUp(client, interaction);
   }
 
   if (interaction.customId.startsWith("startEvent_")) {
