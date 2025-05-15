@@ -29,6 +29,41 @@ async function getOrCreateUser(userId, guildId) {
   return user;
 }
 
+/**
+ * 計算升級所需的 SP 經驗值，並返回升級後的 SP 等級和剩餘經驗值。
+ *
+ * @param {Object} currentSpInfo 當前的 SP 等級與經驗值
+ * @param {number} currentSpInfo.nowSpLevel 當前的 SP 等級
+ * @param {number} currentSpInfo.nowSpExp 當前的 SP 經驗值
+ * @returns {Object} 返回的物件包含以下屬性：
+ * - {number} newSpLevel 升級後的 SP 等級
+ * - {number} remainingExp 剩餘的 SP 經驗值
+ * - {number} cost 經驗值變化量
+ * @example
+ * const { newSpLevel, remainingExp } = calculateSpLevelUp({ nowSpLevel: 1, nowSpExp: 250 });
+ * console.log(`新SP等級: ${newSpLevel}, 剩餘經驗值: ${remainingExp}`);
+ * // 輸出: 新SP等級: 2, 剩餘經驗值: 50
+ * @example
+ * const { newSpLevel, remainingExp } = calculateSpLevelUp({ nowSpLevel: 2, nowSpExp: 500 });
+ * console.log(`新SP等級: ${newSpLevel}, 剩餘經驗值: ${remainingExp}`);
+ * // 輸出: 新SP等級: 3, 剩餘經驗值: 0
+ */
+function calculateSpLevelUp({nowSpLevel = 0, nowSpExp = 0}) {
+  // 計算升級所需的經驗值
+  let levelUpExp = (nowSpLevel + 1) * 100; // 每升一級需要100經驗值
+
+  // 計算升級後的等級和經驗值
+  let newSpLevel = nowSpLevel;
+  let remainingExp = nowSpExp;
+
+  while (remainingExp >= levelUpExp) {
+    remainingExp -= levelUpExp;
+    newSpLevel++;
+    levelUpExp = (newSpLevel + 1) * 100; // 每升一級需要100經驗值
+  }
+  return { newSpLevel, remainingExp, cost: nowSpExp - remainingExp};
+}
 module.exports = {
   getOrCreateUser,
+  calculateSpLevelUp,
 };
