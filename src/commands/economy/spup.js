@@ -44,6 +44,12 @@ module.exports = {
       upItems = inventory.items.filter((item)=>{
         return ["job_scroll", "wisdom_crystal", "qigu_egg"].includes(item.key)
       })
+    } else {
+      await interaction.reply({
+        content: `❌ 您目前沒有升級道具，請先取得道具再來升級！`,
+        ephemeral: true,
+      });
+      return;
     }
     const { newSpLevel, remainingExp } = calculateSpLevelUp({nowSpLevel: userLevel.spLevel, nowSpExp: userLevel.spExp});
     const embed = new EmbedBuilder()

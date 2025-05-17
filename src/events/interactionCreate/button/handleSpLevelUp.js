@@ -2,6 +2,7 @@ const { EmbedBuilder, Client, Interaction } = require("discord.js");
 const { getOrCreateUser, calculateSpLevelUp } = require("../../../services/level.service");
 const { getOrCreateInventory } = require("../../../services/inventory.service");
 const SpExpChange = require("../../../models/SpExpChange");
+const { channels } = require("../../../../config.json");
 /**
  *
  * @param {Client} client
@@ -35,6 +36,8 @@ module.exports = async (client, interaction) => {
         content: `❌ 你的經驗值不足以升級！`,
         ephemeral: true,
       });
+      // userLevel.spExp += 3000;
+      // await userLevel.save()
       return;
     }
     // 等級提升
@@ -75,6 +78,16 @@ module.exports = async (client, interaction) => {
       embeds: [embed],
       ephemeral: true,
     });
+    const activityLogChannel = interaction.client.channels.cache.get(
+      channels.adventureLog
+    );
+
+    if (activityLogChannel) {
+      const displayTime = formatTaiwanTime(new Date());
+      await activityLogChannel.send(
+        `${displayTime} 🎉 恭喜 <@${userId}> SP等級提升至 **${newSpLevel}** 等！`
+      );
+    }
   } catch (error) {
     console.log(`[handleSpLevelUp] error: ${error.message}`);
 
@@ -84,3 +97,18 @@ module.exports = async (client, interaction) => {
     });
   }
 };
+
+function formatTaiwanTime(date) {
+  const formatter = new Intl.DateTimeFormat("zh-TW", {
+    timeZone: "Asia/Taipei", // ✅ 明確指定台灣時區
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23", // ✅ 指定 24 小時制，避免出現 24:00 或上午下午
+  });
+
+  return formatter.format(date);
+}
