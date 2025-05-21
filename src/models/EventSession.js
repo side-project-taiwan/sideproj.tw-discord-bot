@@ -10,6 +10,7 @@ const { Schema, model } = require("mongoose");
 *   speakerIds: string[];
 *   startTime: Date | null;
 *   endTime: Date | null;
+*   status: string;
 *   participants: Map<string, { join: Date; leave: Date; }[]>;
 * }} EventSessionDocument
 */
@@ -28,6 +29,7 @@ const EventSessionSchema = new Schema(
     speakerIds: { type: [String], default: [] }, // 分享者 ID 清單
     startTime: { type: Date, default: null },
     endTime: { type: Date, default: null },
+    status: { type: String, default: 'draft' }, // 活動狀態（draft、active、ended）
 
     /** 用戶參與資料（會動態更新） */
     participants: {

@@ -67,7 +67,7 @@ module.exports = {
   //base command data
   name: "活動建立",
   description: "建立一場語音活動的草稿",
-  deleted: true, // Boolean
+  deleted: false, // Boolean
   options: [
     {
       name: "主題",

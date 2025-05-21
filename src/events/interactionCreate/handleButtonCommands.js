@@ -3,6 +3,7 @@ const { roles } = require("../../../config.json");
 const handleRoleToggle = require("./button/handleRoleToggle");
 const handleShopPurchase = require("./button/handleShopPurchase");
 const handleSpLevelUp = require("./button/handleSpLevelUp");
+const handleStartEvent = require("./button/handleStartEvent");
 /**
  *
  * @param {Client} client
@@ -24,7 +25,7 @@ module.exports = async (client, interaction) => {
         `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試啟動活動`
       );
     }
-    return console.log(interaction.customId);
+    return handleStartEvent(client, interaction);
   }
 
   // 預設：嘗試把 customId 當作 roleId 使用

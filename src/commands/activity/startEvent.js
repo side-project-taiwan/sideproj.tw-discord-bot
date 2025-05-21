@@ -8,6 +8,7 @@ const {
   EmbedBuilder,
   ApplicationCommandOptionType,
   ChannelType,
+  ApplicationFlagsBitField,
 } = require("discord.js");
 const {
   findTodayDraftEvents,
@@ -80,7 +81,7 @@ module.exports = {
   //base command data
   name: "開始活動",
   description: "查看今天可以啟動的活動清單（限活動主持人）",
-  deleted: true, // Boolean
+  deleted: false, // Boolean
 };
 
 function formatTaiwanTime(date) {
