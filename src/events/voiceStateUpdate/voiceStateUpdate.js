@@ -33,7 +33,7 @@ module.exports = async (client, oldState, newState) => {
       } else {
         activeEvent.participants.set(user.id, [
           {
-            join: now,
+            join: new Date(),
             leave: null,
           },
         ]);
