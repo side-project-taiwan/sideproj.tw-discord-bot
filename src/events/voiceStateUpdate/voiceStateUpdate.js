@@ -31,12 +31,12 @@ module.exports = async (client, oldState, newState) => {
           leave: null,
         });
       } else {
-        userLog = [
+        activeEvent.participants.set(user.id, [
           {
-            join: new Date(),
+            join: now,
             leave: null,
           },
-        ];
+        ]);
       }
       activeEvent.markModified('participants');
       await activeEvent.save();
