@@ -60,8 +60,21 @@ async function findEventById(eventId) {
   return await EventSession.findById(eventId);
 }
 
+/**
+ * 找出進行中的活動
+ * @param {string} guildId
+ * @returns {Promise<EventSession[]>}
+ */
+
+async function findActiveEvents(guildId) {
+  return await EventSession.find({
+    guildId,
+    status: "active",
+  });
+}
 module.exports = {
   createEventDraft,
   findTodayDraftEvents,
   findEventById,
+  findActiveEvents,
 };
