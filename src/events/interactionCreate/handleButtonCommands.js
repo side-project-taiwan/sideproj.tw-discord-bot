@@ -4,6 +4,8 @@ const handleRoleToggle = require("./button/handleRoleToggle");
 const handleShopPurchase = require("./button/handleShopPurchase");
 const handleSpLevelUp = require("./button/handleSpLevelUp");
 const handleStartEvent = require("./button/handleStartEvent");
+const handleEventDetail = require("./button/handleEventDetail");
+const handleEndEvent = require("./button/handleEndEvent");
 /**
  *
  * @param {Client} client
@@ -26,6 +28,23 @@ module.exports = async (client, interaction) => {
       );
     }
     return handleStartEvent(client, interaction);
+  }
+
+  if (interaction.customId.startsWith("eventDetail_")) {
+    if (!interaction.member.roles.cache.has(roles.eventHost)) {
+      return console.log(
+        `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試查看活動`
+      );
+    }
+    return handleEventDetail(client, interaction);
+  }
+  if (interaction.customId.startsWith("endEvent_")) {
+    if (!interaction.member.roles.cache.has(roles.eventHost)) {
+      return console.log(
+        `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試查看活動`
+      );
+    }
+    return handleEndEvent(client, interaction);
   }
 
   // 預設：嘗試把 customId 當作 roleId 使用

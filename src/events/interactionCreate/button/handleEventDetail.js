@@ -1,0 +1,69 @@
+const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
+const { findEventById } = require("../../../services/activityTracker.service");
+const statusText = {
+  draft: "草稿",
+  active: "進行中",
+  ended: "已結束",
+};
+module.exports = async (client, interaction) => {
+  const userId = interaction.user.id;
+  const guildId = interaction.guildId;
+  const buttonKey = interaction.customId;
+  const eventId = buttonKey.replace(/^eventDetail_/, ""); 
+  // 提取eventId
+  const event = await findEventById(eventId);
+  if (!event) {
+    return interaction.reply({
+      content: "❌ 找不到活動。",
+      ephemeral: true,
+    });
+  }
+  const embed = new EmbedBuilder()
+    .setTitle(`活動資訊`)
+    .addFields(
+      {
+        name: "活動名稱",
+        value: `${event.topic}`,
+        inline: false,
+      },
+      {
+        name: "活動描述",
+        value: `${event.description}`,
+        inline: false,
+      },
+      { name: "頻道", value: `${event.channelId}`, inline: false },
+      {
+        name: "開始時間",
+        value: `${event.startTime}`,
+        inline: false,
+      },
+      {
+        name: "結束時間",
+        value: `${event.endTime}`,
+        inline: false,
+      },
+      {
+        name: "活動狀態",
+        value: `${statusText[event.status]}`,
+        inline: false,
+      },
+    )
+    .setColor(0x00ccff)
+    .setFooter({
+      text: "SPT",
+      iconURL:
+        "https://cdn.discordapp.com/emojis/1224251953555443812.webp?size=96",
+    })
+    .setTimestamp();
+  const rows = [];
+  const currentRow = new ActionRowBuilder();
+  if( event.status === "active") {
+    const button = new ButtonBuilder()
+      .setCustomId(`endEvent_${event._id}`)
+      .setLabel(`結束活動`)
+      .setStyle(ButtonStyle.Danger);
+    currentRow.addComponents(button);
+  }
+  rows.push(currentRow);
+  return interaction.reply({ embeds: [embed], components: rows, ephemeral: true });
+};

@@ -50,6 +50,18 @@ async function findTodayDraftEvents(guildId) {
     endTime: null,
   }).sort({ createdAt: 1 });
 }
+
+/**
+ * 找出活動清單
+ * @param {string} guildId
+ * @returns {Promise<EventSession[]>}
+ */
+async function getEvents(guildId) {
+  return await EventSession.find({
+    guildId,
+  }).limit(10).sort({ createdAt: -1 });
+}
+
 /**
  * 藉由id找出活動
  * @param {string} eventId
@@ -77,4 +89,5 @@ module.exports = {
   findTodayDraftEvents,
   findEventById,
   findActiveEvents,
+  getEvents
 };
