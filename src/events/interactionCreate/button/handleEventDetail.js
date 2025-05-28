@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, ChannelType, ChannelSelectMenuBuilder } = require("discord.js");
 const { findEventById } = require("../../../services/activityTracker.service");
 const statusText = {
   draft: "草稿",
@@ -18,6 +18,7 @@ module.exports = async (client, interaction) => {
       ephemeral: true,
     });
   }
+  const channel = await client.channels.fetch(event.channelId);
   const embed = new EmbedBuilder()
     .setTitle(`活動資訊`)
     .addFields(
@@ -31,7 +32,7 @@ module.exports = async (client, interaction) => {
         value: `${event.description}`,
         inline: false,
       },
-      { name: "頻道", value: `${event.channelId}`, inline: false },
+      { name: "頻道", value: `${channel.name}`, inline: false },
       {
         name: "開始時間",
         value: `${event.startTime}`,
@@ -64,6 +65,22 @@ module.exports = async (client, interaction) => {
       .setStyle(ButtonStyle.Danger);
     currentRow.addComponents(button);
   }
+  const button = new ButtonBuilder()
+      .setCustomId(`editEvent_${event._id}`)
+      .setLabel(`編輯活動資訊`)
+      .setStyle(ButtonStyle.Primary);
+    currentRow.addComponents(button);
+  const selectRow = new ActionRowBuilder();
+  const channelSelect = new ChannelSelectMenuBuilder()
+    .setCustomId(`updateEventChannel_${event._id}`)
+    .setPlaceholder('修改語音頻道')
+    .addChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]) // 篩選語音和舞台頻道
+    .setDefaultChannels([event.channelId])
+    .setMinValues(1)
+    .setMaxValues(1);
+  
+  selectRow.addComponents(channelSelect);
   rows.push(currentRow);
+  rows.push(selectRow);
   return interaction.reply({ embeds: [embed], components: rows, ephemeral: true });
 };
