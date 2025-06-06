@@ -13,6 +13,7 @@ module.exports = async (client, interaction) => {
     });
   }
   event.status = "ended";
+  event.endTime = new Date();
   // TODO 整理參加者數據
   await event.save();
   return interaction.reply({
