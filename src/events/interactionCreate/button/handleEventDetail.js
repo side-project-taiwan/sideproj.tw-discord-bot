@@ -19,6 +19,11 @@ module.exports = async (client, interaction) => {
     });
   }
   const channel = await client.channels.fetch(event.channelId);
+  const speakers = await interaction.guild.members.fetch({user: event.speakerIds});
+  const speakerNames = speakers.map(speaker => `${speaker.displayName}`).join(", ") || "無";
+  console.log(Array.from(event.participants.keys()));
+  const participants = await interaction.guild.members.fetch({user: Array.from(event.participants.keys())});
+  const participantNames = participants.map(participant => `${participant.displayName}`).join(", ") || "無";
   const embed = new EmbedBuilder()
     .setTitle(`活動資訊`)
     .addFields(
@@ -32,6 +37,8 @@ module.exports = async (client, interaction) => {
         value: `${event.description}`,
         inline: false,
       },
+      { name: "分享者", value: `${speakerNames}`},
+      { name: "參與者", value: `${participantNames}`},
       { name: "頻道", value: `${channel.name}`, inline: false },
       {
         name: "開始時間",
