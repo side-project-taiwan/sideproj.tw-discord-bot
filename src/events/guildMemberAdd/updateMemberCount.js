@@ -1,5 +1,7 @@
 const { Client, GuildMember } = require("discord.js");
-const config = require("../../../config.json");
+const {
+  env: { channels },
+} = require("../../env");
 
 /**
  * @param {Client} client
@@ -7,7 +9,7 @@ const config = require("../../../config.json");
  */
 module.exports = async (client, member) => {
   console.log(`[🧼] guildMemberAdd: ${member.user.tag}`);
-  const channelId = config.channels.memberCount;
+  const channelId = channels.memberCount;
   if (!channelId) return;
 
   const channel = member.guild.channels.cache.get(channelId);

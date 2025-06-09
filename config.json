@@ -1,18 +1,4 @@
 {
-  "testServer": "1205906503073140776",
-  "testServer2": "1342185240487006268",
-  "clientId": "1226489369896943676",
-  "devs": ["319832979126091776", "274859957655175168"],
-  "roles": {
-    "eventHost": "1368971859227312128"
-  },
-  "channels": {
-    "eventStage": "1223824043954671648",
-    "eventStageCompletedCount": "1239596765255303218",
-    "adventureLog": "1367522119818285188",
-    "adventureLog2": "1342185241925910619",
-    "memberCount": "1226559686275235964"
-  },
   "featureToggle": {
     "mileage_shop": "mileage_shop"
   }

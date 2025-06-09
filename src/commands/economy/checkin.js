@@ -8,7 +8,9 @@ const {
   getNextStreakInfo,
   getStreakRewardResult,
 } = require("../../services/streak.service");
-const { channels } = require("../../../config.json");
+const {
+  env: { channels },
+} = require("../../env");
 
 module.exports = {
   /**
