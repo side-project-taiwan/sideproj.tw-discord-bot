@@ -13,7 +13,6 @@ const {
 const {
   findTodayDraftEvents,
 } = require("../../services/activityTracker.service");
-const { channels, roles } = require("../../../config.json");
 
 module.exports = {
   /**
@@ -31,7 +30,7 @@ module.exports = {
 
     if (guildId !== env.DISCORD_GUILD_ID) return;
 
-    if (!interaction.member.roles.cache.has(roles.eventHost)) {
+    if (!interaction.member.roles.cache.has(env.roles.eventHost)) {
       return interaction.reply({
         content: "⚠️ 你沒有權限建立活動，請聯繫管理員。",
         ephemeral: true,

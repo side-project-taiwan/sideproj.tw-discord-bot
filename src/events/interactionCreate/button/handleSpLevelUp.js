@@ -1,8 +1,14 @@
 const { EmbedBuilder, Client, Interaction } = require("discord.js");
-const { getOrCreateUser, calculateSpLevelUp } = require("../../../services/level.service");
+const {
+  getOrCreateUser,
+  calculateSpLevelUp,
+} = require("../../../services/level.service");
 const { getOrCreateInventory } = require("../../../services/inventory.service");
 const SpExpChange = require("../../../models/SpExpChange");
-const { channels } = require("../../../../config.json");
+const {
+  env: { channels },
+} = require("../../../env");
+
 /**
  *
  * @param {Client} client
@@ -21,7 +27,9 @@ module.exports = async (client, interaction) => {
     ]);
     // 檢查用戶是否有該物品
     const itemKey = buttonKey.replace(/^spup_/, ""); // 提取itemKey
-    const item = inventory.items.find((item) => item.key === itemKey && item.quantity > 0);
+    const item = inventory.items.find(
+      (item) => item.key === itemKey && item.quantity > 0
+    );
     if (!item) {
       await interaction.reply({
         content: `❌ 你沒有這個物品！`,
@@ -30,8 +38,11 @@ module.exports = async (client, interaction) => {
       return;
     }
     // 計算經驗值換算等級
-    const { newSpLevel, remainingExp, cost } = calculateSpLevelUp({nowSpLevel: userLevel.spLevel, nowSpExp: userLevel.spExp});
-    if(newSpLevel == userLevel.spLevel) {
+    const { newSpLevel, remainingExp, cost } = calculateSpLevelUp({
+      nowSpLevel: userLevel.spLevel,
+      nowSpExp: userLevel.spExp,
+    });
+    if (newSpLevel == userLevel.spLevel) {
       await interaction.reply({
         content: `❌ 你的經驗值不足以升級！`,
         ephemeral: true,

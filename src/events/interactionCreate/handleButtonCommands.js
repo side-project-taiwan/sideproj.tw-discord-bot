@@ -1,5 +1,5 @@
 const { Client, Interaction } = require("discord.js");
-const { roles } = require("../../../config.json");
+const { env } = require("../../env");
 const handleRoleToggle = require("./button/handleRoleToggle");
 const handleShopPurchase = require("./button/handleShopPurchase");
 const handleSpLevelUp = require("./button/handleSpLevelUp");
@@ -16,9 +16,9 @@ const handleUpdateEventChannel = require("./channelSelectMenu/handleUpdateEventC
  */
 module.exports = async (client, interaction) => {
   console.log(`收到互動：${interaction.customId} 來自 ${interaction.user.tag}`);
-  if(interaction.isModalSubmit()) {
+  if (interaction.isModalSubmit()) {
     if (interaction.customId.startsWith("updateEvent_")) {
-      if (!interaction.member.roles.cache.has(roles.eventHost)) {
+      if (!interaction.member.roles.cache.has(env.roles.eventHost)) {
         return console.log(
           `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試查看活動`
         );
@@ -26,9 +26,9 @@ module.exports = async (client, interaction) => {
       return handleUpdateEvent(client, interaction);
     }
   }
-  if(interaction.isChannelSelectMenu()) {
+  if (interaction.isChannelSelectMenu()) {
     if (interaction.customId.startsWith("updateEventChannel_")) {
-      if (!interaction.member.roles.cache.has(roles.eventHost)) {
+      if (!interaction.member.roles.cache.has(env.roles.eventHost)) {
         return console.log(
           `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試查看活動`
         );
@@ -46,7 +46,7 @@ module.exports = async (client, interaction) => {
   }
 
   if (interaction.customId.startsWith("startEvent_")) {
-    if (!interaction.member.roles.cache.has(roles.eventHost)) {
+    if (!interaction.member.roles.cache.has(env.roles.eventHost)) {
       return console.log(
         `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試啟動活動`
       );
@@ -55,7 +55,7 @@ module.exports = async (client, interaction) => {
   }
 
   if (interaction.customId.startsWith("eventDetail_")) {
-    if (!interaction.member.roles.cache.has(roles.eventHost)) {
+    if (!interaction.member.roles.cache.has(env.roles.eventHost)) {
       return console.log(
         `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試查看活動`
       );
@@ -63,7 +63,7 @@ module.exports = async (client, interaction) => {
     return handleEventDetail(client, interaction);
   }
   if (interaction.customId.startsWith("endEvent_")) {
-    if (!interaction.member.roles.cache.has(roles.eventHost)) {
+    if (!interaction.member.roles.cache.has(env.roles.eventHost)) {
       return console.log(
         `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試查看活動`
       );
@@ -71,7 +71,7 @@ module.exports = async (client, interaction) => {
     return handleEndEvent(client, interaction);
   }
   if (interaction.customId.startsWith("editEvent_")) {
-    if (!interaction.member.roles.cache.has(roles.eventHost)) {
+    if (!interaction.member.roles.cache.has(env.roles.eventHost)) {
       return console.log(
         `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試查看活動`
       );

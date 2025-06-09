@@ -1,6 +1,7 @@
 const { Client, VoiceState, GuildScheduledEventStatus } = require("discord.js");
-const { channels } = require("../../../config.json");
-
+const {
+  env: { channels },
+} = require("../../env");
 /**
  * @param {Client} client
  * @param {VoiceState} oldState
