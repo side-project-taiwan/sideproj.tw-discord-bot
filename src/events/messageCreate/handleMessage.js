@@ -1,8 +1,5 @@
 const { Client, Message, EmbedBuilder } = require("discord.js");
 
-const { testServer, devs } = require("../../../config.json");
-const getLocalCommands = require("../../utils/getLocalCommands");
-
 /**
  *
  * @param {Client} client

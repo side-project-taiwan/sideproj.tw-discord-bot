@@ -1,6 +1,6 @@
 const { Client } = require("discord.js");
+const { env } = require("../../env");
 
-const { testServer } = require("../../../config.json");
 const getLocalCommands = require("../../utils/getLocalCommands");
 const getApplicationCommands = require("../../utils/getApplicationCommands");
 const areCommandsDifferent = require("../../utils/areCommandsDifferent");
@@ -14,7 +14,7 @@ module.exports = async (client) => {
     const localCommands = getLocalCommands();
     const applicationCommands = await getApplicationCommands(
       client,
-      testServer
+      env.DISCORD_GUILD_ID
     );
 
     // 歷遍本地指令
