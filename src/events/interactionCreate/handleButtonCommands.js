@@ -9,6 +9,7 @@ const handleEndEvent = require("./button/handleEndEvent");
 const handleEditEvent = require("./button/handleEditEvent");
 const handleUpdateEvent = require("./modalSubmit/handleUpdateEvent");
 const handleUpdateEventChannel = require("./channelSelectMenu/handleUpdateEventChannel");
+const handleSatteleEventRewards = require("./button/handleSettleEventRewards");
 /**
  *
  * @param {Client} client
@@ -77,6 +78,14 @@ module.exports = async (client, interaction) => {
       );
     }
     return handleEditEvent(client, interaction);
+  }
+  if (interaction.customId.startsWith("settleEventRewards_")) {
+    if (!interaction.member.roles.cache.has(env.roles.eventHost)) {
+      return console.log(
+        `沒有權限的 [${interaction.user.displayName}] 使用者在嘗試查看活動`
+      );
+    }
+    return handleSatteleEventRewards(client, interaction);
   }
 
   // 預設：嘗試把 customId 當作 roleId 使用

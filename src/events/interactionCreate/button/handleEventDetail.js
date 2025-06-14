@@ -72,6 +72,13 @@ module.exports = async (client, interaction) => {
       .setStyle(ButtonStyle.Danger);
     currentRow.addComponents(button);
   }
+  if (event.status === "ended") {
+    const button = new ButtonBuilder()
+      .setCustomId(`settleEventRewards_${event._id}`)
+      .setLabel(`結算獎勵`)
+      .setStyle(ButtonStyle.Success);
+    currentRow.addComponents(button);
+  }
   const button = new ButtonBuilder()
       .setCustomId(`editEvent_${event._id}`)
       .setLabel(`編輯活動資訊`)
