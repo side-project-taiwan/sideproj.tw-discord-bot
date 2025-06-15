@@ -1,5 +1,6 @@
 require("dotenv").config();
 const { z } = require("zod");
+console.log("當前環境設定：", process.env.NODE_ENV);
 
 const environmentSchema = z.object({
   //Port(伺服器設定相關)
@@ -7,6 +8,7 @@ const environmentSchema = z.object({
     const parsed = parseInt(val, 10);
     return !isNaN(parsed) ? parsed : 3000; // 使用默認值3000如果轉換失敗
   }, z.number()),
+  ENV: z.enum(["production", "staging", "dev"]),
 
   //Discord Bot ID(機器人設定相關)
   DISCORD_CLIENT_BOT_ID: z.string(),
@@ -25,7 +27,7 @@ const environmentSchema = z.object({
     memberCount: z.string(),
   }),
 
-    //MongoDB(資料庫設定相關)
+  //MongoDB(資料庫設定相關)
   MONGO_URI: z.string(),
 
   // GOOGLE(Google Calendar設定相關)
@@ -33,6 +35,8 @@ const environmentSchema = z.object({
 });
 
 const {
+  PORT,
+  NODE_ENV,
   DISCORD_CLIENT_BOT_ID,
   DISCORD_TOKEN,
   DISCORD_PUBLIC_KEY,
@@ -43,11 +47,12 @@ const {
   DISCORD_CHANNEL_ADVENTURE_LOG_ID,
   DISCORD_CHANNEL_MEMBER_COUNT_ID,
   MONGO_URI,
-  PORT,
   GOOGLE_CALENDAR_ID,
 } = process.env;
 
 const environment = environmentSchema.safeParse({
+  PORT,
+  ENV: NODE_ENV,
   DISCORD_CLIENT_BOT_ID,
   DISCORD_TOKEN,
   DISCORD_PUBLIC_KEY,
@@ -62,7 +67,6 @@ const environment = environmentSchema.safeParse({
     memberCount: DISCORD_CHANNEL_MEMBER_COUNT_ID,
   },
   MONGO_URI,
-  PORT,
   GOOGLE_CALENDAR_ID,
 });
 

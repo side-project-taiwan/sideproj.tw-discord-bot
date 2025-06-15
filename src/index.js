@@ -16,9 +16,6 @@ const client = new Client({
   ],
 });
 
-const serverEnv = require("./utils/serverEnv");
-const currentEnv = serverEnv.getEnv(env.DISCORD_GUILD_ID); // 👈 SERVER_ID 由 .env 提供
-
 (async () => {
   // Connect to MongoDB
   try {
@@ -30,6 +27,6 @@ const currentEnv = serverEnv.getEnv(env.DISCORD_GUILD_ID); // 👈 SERVER_ID 由
     console.log(err);
   }
   // DC Client events handler
-  eventHandler(client, currentEnv);
+  eventHandler(client);
   client.login(env.DISCORD_TOKEN);
 })();

@@ -7,7 +7,13 @@ module.exports = {
    * @param {Interaction} interaction
    */
   callback: (client, interaction) => {
-    interaction.reply(`Pong! ${client.ws.ping}ms`);
+    try {
+      interaction.reply(`Pong! ${client.ws.ping}ms`);
+    } catch (error) {
+      console.log(
+        `🚨 [Ping Commands] There was an error running this command: ${error}`
+      );
+    }
   },
 
   //base command data
