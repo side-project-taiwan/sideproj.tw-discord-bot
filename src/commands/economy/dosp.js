@@ -4,6 +4,9 @@ const { getOrCreateUser } = require("../../services/level.service");
 const Level = require("../../models/Level");
 const SigninLog = require("../../models/SigninLog");
 const SpExpChange = require("../../models/SpExpChange");
+const getTeamMembersInfo = require("../../utils/getTeamMembers");
+const generateCheckInImage = require("../../utils/drawTeam");
+
 const SP_HOUR = 23 - 8; // 23:00
 const SP_EXP_MAX = 20000;
 module.exports = {
@@ -76,14 +79,16 @@ module.exports = {
       guildId: interaction.guild.id,
     }).sort({ startTime: -1 });
     let sameTimeSignins = 0;
+    let imageBuffer = null;
+    let teamLogs = [];
     let teamExp = 0;
     if (lastSignin) {
-      sameTimeSignins = await SigninLog.countDocuments({
-        userId: { $ne: interaction.member.id },
+      teamLogs = await SigninLog.find({
         guildId: interaction.guild.id,
-        endTime: { $gt: lastSignin.startTime },
         startTime: { $lt: lastSignin.endTime },
+        endTime: { $gt: lastSignin.startTime },
       });
+      sameTimeSignins = teamLogs.length
       console.log(`sameTimeSignins: ${sameTimeSignins}`);
       if (sameTimeSignins) {
         let multiple = 1;
@@ -136,6 +141,12 @@ module.exports = {
       return;
     });
     if (sameTimeSignins) {
+      const userIds = [...new Set(teamLogs.map(log => log.userId.toString()))];
+      const teamInfo = await getTeamMembersInfo(userIds, interaction.guild);
+      imageBuffer = await generateCheckInImage(teamInfo);
+      teamInfo.forEach((user) => {
+        console.log(`#${user.name} | Lv.${user.level} | ${user.spExp} SP | ${user.avatar}`);
+      });
       replyString += `\n上次打卡組隊人數: ${sameTimeSignins}, 額外獲得團隊加成獎勵 ${teamExp} SP經驗!`;
     }
     // 寫入打卡紀錄
@@ -164,12 +175,21 @@ module.exports = {
     });
     //=> 創建一個嵌入式消息
     // console.log(`replyString: ${replyString}`);
+    const replyPayload = {
+      content: replyString,
+    };
+
+    if (imageBuffer) {
+      replyPayload.files = [{ attachment: imageBuffer, name: "team.png" }];
+    }
+
     try {
-      await interaction.reply(replyString);
+      await interaction.reply(replyPayload);
       return;
     } catch (error) {
       console.log(`🚨 Error creating embed: ${error}`);
     }
+    return;
   },
 
   //base command data

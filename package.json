@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "canvas": "^3.1.0",
     "discord.js": "^14.12.1",
     "dotenv": "^16.4.5",
     "googleapis": "^148.0.0",
