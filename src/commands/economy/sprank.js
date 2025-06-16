@@ -95,7 +95,7 @@ module.exports = {
       return {
         userId: user.userId,
         name: member?.displayName || "Unknown",
-        spExp: user.spExp,
+        spExp: duration === "all" ? user.spExp : `+${user.spExp}`,
         level: user.level || 1,
         avatar: member.displayAvatarURL({ extension: "png", size: 64 }),
       };

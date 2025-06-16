@@ -178,6 +178,29 @@ module.exports = async function drawSpRanking(teamInfo, duration = 'all') {
     ctx.strokeStyle = "#888";
     ctx.strokeRect(x, y, cardWidth, cardHeight);
 
+    // Rank Glow
+    const glowX = x + 35;
+    const glowY = y + 45;
+    let glowColor = null;
+
+    if (user.userId === teamInfo[0]?.userId) {
+      glowColor = "rgba(255, 215, 0"; // SP King Gold
+    } else if (user.userId === teamInfo[1]?.userId) {
+      glowColor = "rgba(192, 192, 192"; // SP 2nd Silver
+    } else if (user.userId === teamInfo[2]?.userId) {
+      glowColor = "rgba(205, 127, 50"; // SP 3rd Bronze
+    }
+
+    if (glowColor) {
+      const glowGradient = ctx.createRadialGradient(glowX, glowY, 10, glowX, glowY, 40);
+      glowGradient.addColorStop(0, `${glowColor}, 0.6)`);
+      glowGradient.addColorStop(1, `${glowColor}, 0)`);
+      ctx.fillStyle = glowGradient;
+      ctx.beginPath();
+      ctx.arc(glowX, glowY, 40, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     // Avatar
     try {
       const avatar = await loadImage(user.avatar);
@@ -220,9 +243,11 @@ module.exports = async function drawSpRanking(teamInfo, duration = 'all') {
     ctx.fillStyle = "#ffd700";
     ctx.fillRect(barX, barY, barActualWidth, 10);
 
-    ctx.font = "12px Cubic11";
-    ctx.fillStyle = "#888";
-    ctx.fillText(`${user.spExp}/20000`, barX, barY + 14);
+    if (duration === "all") {
+      ctx.fillStyle = "#888";
+      ctx.font = "12px Cubic11";
+      ctx.fillText(`${user.spExp}/20000`, barX, barY + 14);
+    }
   }
 
   return canvas.toBuffer("image/png");
