@@ -88,7 +88,7 @@ module.exports = {
         startTime: { $lt: lastSignin.endTime },
         endTime: { $gt: lastSignin.startTime },
       });
-      sameTimeSignins = teamLogs.length
+      sameTimeSignins = teamLogs.length - 1
       console.log(`sameTimeSignins: ${sameTimeSignins}`);
       if (sameTimeSignins) {
         let multiple = 1;
