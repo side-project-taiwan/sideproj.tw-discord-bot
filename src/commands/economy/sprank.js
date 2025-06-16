@@ -4,8 +4,10 @@ const {
 } = require("discord.js");
 const Level = require("../../models/Level");
 const SpExpChange = require("../../models/SpExpChange");
+const drawSpRanking = require("../../utils/drawTeam");
 const { DateTime, Settings } = require("luxon");
 Settings.defaultZone = "Asia/Taipei";
+
 module.exports = {
   /**
    *
@@ -17,9 +19,11 @@ module.exports = {
       interaction.reply("This command is only available inside servers.");
       return;
     }
+
     const duration = interaction.options.getString('duration') || 'all';
     let top10users = [];
-    if(duration === 'all'){
+
+    if (duration === 'all') {
       top10users = await Level.find({
         guildId: interaction.guild.id,
       }).sort({ spExp: -1 }).limit(10);
@@ -38,6 +42,7 @@ module.exports = {
         default:
           break;
       }
+
       top10users = await SpExpChange.aggregate([
         {
           $match: {
@@ -67,29 +72,40 @@ module.exports = {
           },
         }
       ]);
+
+      // Get level
+      const userIds = top10users.map((u) => u.userId);
+      const levels = await Level.find({
+        guildId: interaction.guild.id,
+        userId: { $in: userIds },
+      });
+      const levelMap = new Map(levels.map((l) => [l.userId, l.level]));
+      top10users = top10users.map((u) => ({
+        ...u,
+        level: levelMap.get(u.userId) || 1,
+      }));
     }
-    const userIds = top10users.map((user) => user.userId);
-    const users = await interaction.guild.members.fetch({user: userIds});
-    const getRankingIcon = (index, userId) => {
-        if(userId === '362797826453012491'){
-            return "<:image:1227521779719733280>";
-        }
-        switch (index) {
-        case 0:
-            return ":first_place:";
-        case 1:
-            return ":second_place:";
-        case 2:
-            return ":third_place:";
-        default:
-            return "<:Sheep:1224251953555443812>";
-        }
-    }
-    const rankingLabels = top10users.map((top10user, index) => {
-        const userInfo = users.find((user) => user.id === top10user.userId);
-        return `${index + 1}. ${getRankingIcon(index, top10user.userId)} ${userInfo.displayName}(${top10user.spExp})`;
+
+    // Get user info
+    const userIds = top10users.map((u) => u.userId);
+    const users = await interaction.guild.members.fetch({ user: userIds });
+
+    const teamInfo = top10users.map((user) => {
+      const member = users.get(user.userId);
+      return {
+        userId: user.userId,
+        name: member?.displayName || "Unknown",
+        spExp: user.spExp,
+        level: user.level || 1,
+        avatar: member.displayAvatarURL({ extension: "png", size: 64 }),
+      };
     });
-    await interaction.reply(`Ranking of SP exp(${duration}):\n ${rankingLabels.join("\n")}`);
+
+    const imageBuffer = await drawSpRanking(teamInfo, duration);
+
+    await interaction.reply({
+      files: [{ attachment: imageBuffer, name: "ranking.png" }],
+    });
   },
 
   //base command data

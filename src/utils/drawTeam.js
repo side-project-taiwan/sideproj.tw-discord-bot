@@ -134,3 +134,96 @@ module.exports = async function generateCheckInImage(teamInfo) {
 
   return canvas.toBuffer("image/png");
 };
+
+
+module.exports = async function drawSpRanking(teamInfo, duration = 'all') {
+  const cardWidth = 420;
+  const cardHeight = 80;
+  const padding = 20;
+  const spacing = 10;
+  const titleHeight = 40;
+  const minVisibleRows = 5;
+  const visibleRows = Math.max(teamInfo.length, minVisibleRows);
+  const canvasWidth = cardWidth + padding * 2;
+  const canvasHeight = titleHeight + visibleRows * (cardHeight + spacing) + padding;
+  const canvas = createCanvas(canvasWidth, canvasHeight);
+  const ctx = canvas.getContext("2d");
+
+  // Background
+  const bgGradient = ctx.createLinearGradient(0, 0, 0, canvasHeight);
+  bgGradient.addColorStop(0, "#1e1e2e");
+  bgGradient.addColorStop(1, "#2a2a3d");
+  ctx.fillStyle = bgGradient;
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+  // Title
+  ctx.font = "20px Cubic11";
+  ctx.fillStyle = "#00ccff";
+  ctx.textBaseline = "top";
+  ctx.fillText(`[${duration}] Side Project Point Ranking`, padding, padding);
+
+  // Draw
+  const offsetY = padding + titleHeight;
+
+  for (let i = 0; i < teamInfo.length; i++) {
+    const user = teamInfo[i];
+    const x = padding;
+    const y = offsetY + i * (cardHeight + spacing);
+
+    ctx.font = "15px Cubic11";
+
+    // Card Background
+    ctx.fillStyle = "#333";
+    ctx.fillRect(x, y, cardWidth, cardHeight);
+    ctx.strokeStyle = "#888";
+    ctx.strokeRect(x, y, cardWidth, cardHeight);
+
+    // Avatar
+    try {
+      const avatar = await loadImage(user.avatar);
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x + 35, y + 40, 25, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.clip();
+      ctx.drawImage(avatar, x + 10, y + 15, 50, 50);
+      ctx.restore();
+    } catch {
+      ctx.fillStyle = "#666";
+      ctx.beginPath();
+      ctx.arc(x + 35, y + 40, 25, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Info Location
+    const baseX = x + 75;
+    const topY = y + 20;
+
+    ctx.fillStyle = "#fff";
+    ctx.fillText(user.name, baseX, topY);
+
+    ctx.fillStyle = "#bbb";
+    ctx.fillText(`Lv.${user.level}`, baseX + 100, topY);
+
+    ctx.fillStyle = "#00ccff";
+    ctx.fillText(`${user.spExp} SP`, baseX + 200, topY);
+
+    const barX = baseX + 200;
+    const barY = y + 40;
+    const progressWidth = 100;
+    const ratio = Math.min(user.spExp / 20000, 1);
+    const barActualWidth = Math.max(progressWidth * ratio, 4);
+
+    ctx.fillStyle = "#444";
+    ctx.fillRect(barX, barY, progressWidth, 10);
+
+    ctx.fillStyle = "#ffd700";
+    ctx.fillRect(barX, barY, barActualWidth, 10);
+
+    ctx.font = "12px Cubic11";
+    ctx.fillStyle = "#888";
+    ctx.fillText(`${user.spExp}/20000`, barX, barY + 14);
+  }
+
+  return canvas.toBuffer("image/png");
+};
