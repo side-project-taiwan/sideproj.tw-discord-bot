@@ -4,7 +4,7 @@ const crownUrl = "https://cdn-icons-png.flaticon.com/512/2583/2583344.png";
 // Register Font
 registerFont('./fonts/Cubic_11.ttf', { family: 'Cubic11' });
 
-module.exports = async function generateCheckInImage(teamInfo) {
+async function generateCheckInImage(teamInfo) {
   const cardWidth = 150;
   const cardHeight = 170;
   const padding = 20;
@@ -136,7 +136,7 @@ module.exports = async function generateCheckInImage(teamInfo) {
 };
 
 
-module.exports = async function drawSpRanking(teamInfo, duration = 'all') {
+async function drawSpRanking(teamInfo, duration = 'all') {
   const cardWidth = 420;
   const cardHeight = 80;
   const padding = 20;
@@ -251,4 +251,9 @@ module.exports = async function drawSpRanking(teamInfo, duration = 'all') {
   }
 
   return canvas.toBuffer("image/png");
+};
+
+module.exports = {
+  generateCheckInImage,
+  drawSpRanking,
 };
