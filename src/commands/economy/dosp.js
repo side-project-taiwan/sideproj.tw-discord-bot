@@ -5,7 +5,7 @@ const Level = require("../../models/Level");
 const SigninLog = require("../../models/SigninLog");
 const SpExpChange = require("../../models/SpExpChange");
 const getTeamMembersInfo = require("../../utils/getTeamMembers");
-const generateCheckInImage = require("../../utils/drawTeam");
+const { generateCheckInImage } = require("../../utils/drawTeam");
 
 const SP_HOUR = 23 - 8; // 23:00
 const SP_EXP_MAX = 20000;

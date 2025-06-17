@@ -4,7 +4,7 @@ const {
 } = require("discord.js");
 const Level = require("../../models/Level");
 const SpExpChange = require("../../models/SpExpChange");
-const drawSpRanking = require("../../utils/drawTeam");
+const { drawSpRanking } = require("../../utils/drawTeam");
 const { DateTime, Settings } = require("luxon");
 Settings.defaultZone = "Asia/Taipei";
 
@@ -79,10 +79,10 @@ module.exports = {
         guildId: interaction.guild.id,
         userId: { $in: userIds },
       });
-      const levelMap = new Map(levels.map((l) => [l.userId, l.level]));
+      const levelMap = new Map(levels.map((l) => [l.userId, l.spLevel]));
       top10users = top10users.map((u) => ({
         ...u,
-        level: levelMap.get(u.userId) || 1,
+        spLevel: levelMap.get(u.userId) || 0,
       }));
     }
 
@@ -96,7 +96,7 @@ module.exports = {
         userId: user.userId,
         name: member?.displayName || "Unknown",
         spExp: duration === "all" ? user.spExp : `+${user.spExp}`,
-        level: user.level || 1,
+        level: user.spLevel || 0,
         avatar: member.displayAvatarURL({ extension: "png", size: 64 }),
       };
     });
