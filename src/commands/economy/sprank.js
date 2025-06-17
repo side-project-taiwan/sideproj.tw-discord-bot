@@ -26,7 +26,9 @@ module.exports = {
     if (duration === 'all') {
       top10users = await Level.find({
         guildId: interaction.guild.id,
-      }).sort({ spExp: -1 }).limit(10);
+      })
+      .sort({ spLevel: -1, spExp: -1 })
+      .limit(10);
     } else {
       const now = DateTime.now();
       let startTime = now.startOf('day').toJSDate();
