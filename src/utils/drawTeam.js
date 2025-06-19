@@ -228,30 +228,57 @@ async function drawSpRanking(teamInfo, duration = 'all') {
     ctx.fillStyle = "#bbb";
     ctx.fillText(`Lv.${user.level}`, baseX + 100, topY);
 
-    ctx.fillStyle = "#00ccff";
-    ctx.fillText(`${user.spExp} SP`, baseX + 200, topY);
+    // SP Text - two parts with color separation
+    ctx.font = "15px Cubic11";
+    ctx.textAlign = "left";
+    if (user.gainExp != null) {
+      const mainExpText = `${user.spExp - user.gainExp}`;
+      const gainText = ` + ${user.gainExp} SP`;
+
+      ctx.fillStyle = "#ffd700"; // gold
+      ctx.fillText(mainExpText, baseX + 200, topY);
+      const mainTextWidth = ctx.measureText(mainExpText).width;
+
+      ctx.fillStyle = "#00ccff"; // blue
+      ctx.fillText(gainText, baseX + 200 + mainTextWidth, topY);
+    } else {
+      ctx.fillStyle = "#00ccff";
+      ctx.fillText(`${user.spExp} SP`, baseX + 200, topY);
+    }
 
     const barX = baseX + 200;
     const barY = y + 40;
     const progressWidth = 100;
-    const ratio = Math.min(user.spExp / 20000, 1);
-    const barActualWidth = Math.max(progressWidth * ratio, 4);
 
+    // Base bar
     ctx.fillStyle = "#444";
     ctx.fillRect(barX, barY, progressWidth, 10);
 
+    // Old progress
+    const oldRatio = Math.min((user.spExp - (user.gainExp ?? 0)) / 20000, 1);
+    const oldBarWidth = Math.max(progressWidth * oldRatio, 0);
     ctx.fillStyle = "#ffd700";
-    ctx.fillRect(barX, barY, barActualWidth, 10);
+    ctx.fillRect(barX, barY, oldBarWidth, 10);
 
-    if (duration === "all") {
-      ctx.fillStyle = "#888";
-      ctx.font = "12px Cubic11";
-      ctx.fillText(`${user.spExp}/20000`, barX, barY + 14);
+    // Gain progress
+    if (user.gainExp != null) {
+      const totalRatio = Math.min(user.spExp / 20000, 1);
+      const totalBarWidth = Math.max(progressWidth * totalRatio, 0);
+      const gainBarWidth = Math.max(totalBarWidth - oldBarWidth, 0);
+      ctx.fillStyle = "#00ccff";
+      ctx.fillRect(barX + oldBarWidth, barY, gainBarWidth, 10);
     }
+
+    // Show exp progress value centered and closer to the bar
+    ctx.fillStyle = "#888";
+    ctx.font = "12px Cubic11";
+    ctx.textAlign = "center";
+    ctx.fillText(`${user.spExp}/20000`, barX + progressWidth / 2, barY + 11);
+    ctx.textAlign = "left";
   }
 
   return canvas.toBuffer("image/png");
-};
+}
 
 module.exports = {
   generateCheckInImage,

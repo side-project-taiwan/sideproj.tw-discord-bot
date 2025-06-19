@@ -10,7 +10,6 @@ Settings.defaultZone = "Asia/Taipei";
 
 module.exports = {
   /**
-   *
    * @param {Client} client
    * @param {Interaction} interaction
    */
@@ -81,11 +80,17 @@ module.exports = {
         guildId: interaction.guild.id,
         userId: { $in: userIds },
       });
-      const levelMap = new Map(levels.map((l) => [l.userId, l.spLevel]));
-      top10users = top10users.map((u) => ({
-        ...u,
-        spLevel: levelMap.get(u.userId) || 0,
-      }));
+      const levelMap = new Map(levels.map((l) => [l.userId, l]));
+
+      top10users = top10users.map((u) => {
+        const level = levelMap.get(u.userId) || { spLevel: 0, spExp: 0 };
+        return {
+          userId: u.userId,
+          gainExp: u.spExp,
+          spExp: level.spExp,
+          spLevel: level.spLevel,
+        };
+      });
     }
 
     // Get user info
@@ -97,8 +102,9 @@ module.exports = {
       return {
         userId: user.userId,
         name: member?.displayName || "Unknown",
-        spExp: duration === "all" ? user.spExp : `+${user.spExp}`,
-        level: user.spLevel || 0,
+        spExp: user.spExp,
+        gainExp: user.gainExp ?? null,
+        level: user.spLevel ?? 0,
         avatar: member.displayAvatarURL({ extension: "png", size: 64 }),
       };
     });
