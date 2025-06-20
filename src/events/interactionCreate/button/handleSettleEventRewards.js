@@ -1,5 +1,6 @@
 const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, ModalBuilder, TextInputStyle, TextInputBuilder } = require("discord.js");
 const { findEventById } = require("../../../services/activityTracker.service");
+const getActivityRewardItemByParticipationRate = require("../../../utils/getActivityRewardItemByParticipationRate");
 const fs = require("fs");
 const path = require("path");
 const { DateTime } = require("luxon");
@@ -108,7 +109,7 @@ module.exports = async (client, interaction) => {
             lastModifyedLog.l = leaveTime; // 更新上一筆的離開時間
           } else {
             // 如果上一筆沒有離開時間，則視為從上一筆 join 時間開始計算
-            totalSeconds += Math.round((leaveTime - lastJoinTime) / 1000);
+            totalSeconds += Math.round((leaveTime - lastModifyedLog.j) / 1000);
             lastModifyedLog.l = leaveTime; // 更新上一筆的離開時間   
           }
         }
@@ -189,7 +190,10 @@ module.exports = async (client, interaction) => {
     const modifyedLogs = p.modifyedLogs.map(log => {
       return `(${log.j ? DateTime.fromJSDate(log.j).toFormat("HH:mm:ss") : "無進入"} - ${log.l ? DateTime.fromJSDate(log.l).toFormat("HH:mm:ss") : "無離開"})`;
     }).join(",\n");
-    return `${p.name}\n${logs}\n整理後時間\n${modifyedLogs}\n(${p.totalMinutes} 分鐘 參與度${participationRate}%)`;
+    // 發放獎勵
+    // 根據參與時間取得一個獎勵
+    const rewardItem = getActivityRewardItemByParticipationRate(participationRate)
+    return `${p.name}\n${logs}\n整理後時間\n${modifyedLogs}\n(${p.totalMinutes} 分鐘 參與度${participationRate}%)\n獎勵: ${rewardItem || "無"}`;
   }).join(",\n==============\n") || "無參加者";
   console.log(participantNames)
 
