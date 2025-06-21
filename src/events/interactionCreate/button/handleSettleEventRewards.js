@@ -1,6 +1,6 @@
 const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, ModalBuilder, TextInputStyle, TextInputBuilder } = require("discord.js");
 const { findEventById } = require("../../../services/activityTracker.service");
-const getActivityRewardItemByParticipationRate = require("../../../utils/getActivityRewardItemByParticipationRate");
+const { getActivityRewardItemByParticipationRate, getModifyedLogs, getTotalSecands } = require("../../../utils/activityUtils");
 const fs = require("fs");
 const path = require("path");
 const { DateTime } = require("luxon");
@@ -38,11 +38,10 @@ module.exports = async (client, interaction) => {
     const userId = participant.id;
     const logs = event.participants.get(userId) || [];
     const originalLogs = []
-    const modifyedLogs = []
-    let totalSeconds = 0;
+    const modifyedLogs = getModifyedLogs(logs, event.startTime, event.endTime);
+    const totalSeconds = getTotalSecands(modifyedLogs)
 
     // 處理多次進出的紀錄
-    let lastJoinTime = null; // 用於追蹤上一個有效的 joinTime
     for (let index = 0; index < logs.length; index++) {
       const log = logs[index];
       let joinTime = log.join ? new Date(log.join) : null;
@@ -62,98 +61,6 @@ module.exports = async (client, interaction) => {
           latestLeaveTime = leaveTime;
         }
       }
-
-      // 規則處理
-      if (!joinTime && !leaveTime) {
-        // a. join 和 leave 都沒有，視為沒參加
-        continue;
-      } else if (joinTime && leaveTime) {
-        // b. 正常計算
-        if (index === 0) {
-          totalSeconds += Math.round((leaveTime - joinTime) / 1000);
-          lastJoinTime = null; // 重置 lastJoinTime
-          modifyedLogs.push({
-            j: joinTime,
-            l: leaveTime,
-          });
-        } else {
-          const lastModifyedLog = modifyedLogs[modifyedLogs.length - 1];
-          if (lastModifyedLog.l) {
-            totalSeconds += Math.round((leaveTime - joinTime) / 1000);
-            lastJoinTime = null; // 重置 lastJoinTime
-            modifyedLogs.push({
-              j: joinTime,
-              l: leaveTime,
-            });
-          } else {
-            // 如果上一筆沒有離開時間，則視為從上一筆 join 時間開始計算
-            totalSeconds += Math.round((leaveTime - lastModifyedLog.j) / 1000);
-            lastJoinTime = null; // 重置 lastJoinTime
-            lastModifyedLog.l = leaveTime; // 更新上一筆的離開時間
-          }
-        }
-      } else if (!joinTime && leaveTime) {
-        if (index === 0) {
-          // c. 第一筆沒 join，有 leave，視為一開始就參加
-          joinTime = new Date(event.startTime);
-          totalSeconds += Math.round((leaveTime - joinTime) / 1000);
-          modifyedLogs.push({
-            j: joinTime,
-            l: leaveTime,
-          });
-        } else {
-          // c. 非第一筆沒 join，有 leave，與上一筆合併
-          const lastModifyedLog = modifyedLogs[modifyedLogs.length - 1];
-          if (lastModifyedLog.l) {
-            totalSeconds += Math.round((leaveTime - lastModifyedLog.l) / 1000);
-            lastModifyedLog.l = leaveTime; // 更新上一筆的離開時間
-          } else {
-            // 如果上一筆沒有離開時間，則視為從上一筆 join 時間開始計算
-            totalSeconds += Math.round((leaveTime - lastModifyedLog.j) / 1000);
-            lastModifyedLog.l = leaveTime; // 更新上一筆的離開時間   
-          }
-        }
-      } else if (joinTime && !leaveTime) {
-        if (logs.length === 1) {
-            leaveTime = new Date(event.endTime);
-            totalSeconds += Math.round((leaveTime - joinTime) / 1000);
-            modifyedLogs.push({
-              j: joinTime,
-              l: leaveTime,
-            });
-            continue;
-        }
-        if (index === 0) {
-          modifyedLogs.push({
-            j: joinTime,
-            l: null,
-          });
-        } else if (index === logs.length - 1) {
-          // d. 最後一筆有 join，沒 leave，視為待到活動結束
-          const lastModifyedLog = modifyedLogs[modifyedLogs.length - 1];
-          if (lastModifyedLog.l) {
-            leaveTime = new Date(event.endTime);
-            totalSeconds += Math.round((leaveTime - joinTime) / 1000);
-            modifyedLogs.push({
-              j: joinTime,
-              l: leaveTime,
-            });
-          } else {
-            // 如果上一筆沒有離開時間，則視為從上一筆 join 時間開始計算
-            leaveTime = new Date(event.endTime);
-            totalSeconds += Math.round((leaveTime - lastModifyedLog.j) / 1000);
-            lastModifyedLog.l = leaveTime; // 更新上一筆的離開時間
-          }
-        } else {
-          const lastModifyedLog = modifyedLogs[modifyedLogs.length - 1];
-          if(lastModifyedLog.l) {
-            modifyedLogs.push({
-              j: joinTime,
-              l: null,
-            });
-          }
-        }
-      }
     }
 
     // 換算成分鐘，無條件進位
@@ -161,8 +68,8 @@ module.exports = async (client, interaction) => {
     return {
       name: participant.displayName,
       userId: participant.id,
-      totalMinutes: totalMinutes,
-      originalLogs,
+      totalMinutes,
+      originalLogs: logs,
       modifyedLogs,
     };
   })
@@ -185,7 +92,7 @@ module.exports = async (client, interaction) => {
     // 計算參與度百分比
     const participationRate = Math.min(100, Math.floor((p.totalMinutes / eventDurationMinutes) * 100));
     const logs = p.originalLogs.map(log => {
-      return `(${log.j || "無進入"} - ${log.l || "無離開"})`;
+      return `(${log.join ? DateTime.fromJSDate(log.join).toFormat("HH:mm:ss") : "無進入"} - ${log.leave ? DateTime.fromJSDate(log.leave).toFormat("HH:mm:ss") : "無離開"})`;
     }).join(",\n");
     const modifyedLogs = p.modifyedLogs.map(log => {
       return `(${log.j ? DateTime.fromJSDate(log.j).toFormat("HH:mm:ss") : "無進入"} - ${log.l ? DateTime.fromJSDate(log.l).toFormat("HH:mm:ss") : "無離開"})`;
