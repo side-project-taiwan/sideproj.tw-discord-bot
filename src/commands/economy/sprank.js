@@ -1,7 +1,4 @@
-const {
-  Client,
-  Interaction,
-} = require("discord.js");
+const { Client, Interaction } = require("discord.js");
 const Level = require("../../models/Level");
 const SpExpChange = require("../../models/SpExpChange");
 const { drawSpRanking } = require("../../utils/drawTeam");
@@ -19,26 +16,26 @@ module.exports = {
       return;
     }
 
-    const duration = interaction.options.getString('duration') || 'all';
+    const duration = interaction.options.getString("duration") || "all";
     let top10users = [];
 
-    if (duration === 'all') {
+    if (duration === "all") {
       top10users = await Level.find({
         guildId: interaction.guild.id,
       })
-      .sort({ spLevel: -1, spExp: -1 })
-      .limit(10);
+        .sort({ spLevel: -1, spExp: -1 })
+        .limit(10);
     } else {
       const now = DateTime.now();
-      let startTime = now.startOf('day').toJSDate();
+      let startTime = now.startOf("day").toJSDate();
       switch (duration) {
-        case 'daily':
+        case "daily":
           break;
-        case 'weekly':
-          startTime = now.startOf('week').toJSDate();
+        case "weekly":
+          startTime = now.startOf("week").toJSDate();
           break;
-        case 'monthly':
-          startTime = now.startOf('month').toJSDate();
+        case "monthly":
+          startTime = now.startOf("month").toJSDate();
           break;
         default:
           break;
@@ -71,7 +68,7 @@ module.exports = {
             spExp: 1,
             _id: 0,
           },
-        }
+        },
       ]);
 
       // Get level
@@ -105,7 +102,7 @@ module.exports = {
         spExp: user.spExp,
         gainExp: user.gainExp ?? null,
         level: user.spLevel ?? 0,
-        avatar: member.displayAvatarURL({ extension: "png", size: 64 }),
+        avatar: member?.displayAvatarURL({ extension: "png", size: 64 }) || "",
       };
     });
 
@@ -121,28 +118,28 @@ module.exports = {
   description: "Shows voice channel members list",
   options: [
     {
-      name: 'duration',
-      description: 'The duration of the ranking',
+      name: "duration",
+      description: "The duration of the ranking",
       type: 3,
       required: false,
       choices: [
         {
-          name: '今日',
-          value: 'daily',
+          name: "今日",
+          value: "daily",
         },
         {
-          name: '本週',
-          value: 'weekly',
+          name: "本週",
+          value: "weekly",
         },
         {
-          name: '本月',
-          value: 'monthly',
+          name: "本月",
+          value: "monthly",
         },
         {
-          name: '全部時間',
-          value: 'all',
+          name: "全部時間",
+          value: "all",
         },
       ],
-    }
-  ]
+    },
+  ],
 };
