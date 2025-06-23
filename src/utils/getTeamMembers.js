@@ -25,7 +25,7 @@ module.exports = async function getTeamMembersInfo(userIds, guild) {
       return {
         userId: id,
         name: member.displayName || member.user.username || "Unknown",
-        avatar: member.displayAvatarURL({ extension: "png", size: 64 }),
+        avatar: member.displayAvatarURL({ extension: "png", size: 64 }) || "",
         level: level?.spLevel || 0,
         spExp: level?.spExp || 0,
       };
