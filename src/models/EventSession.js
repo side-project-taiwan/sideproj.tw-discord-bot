@@ -42,6 +42,29 @@ const EventSessionSchema = new Schema(
       ],
       default: {},
     },
+    /** 獎勵結果 */
+    rewardResults: {
+      hosts: [
+        {
+          hostId: { type: String, required: true }, // 主持人 ID
+          reward: { type: String, required: true }, // 獎勵內容
+        },
+      ],
+      sharers: [
+        {
+          sharerId: { type: String, required: true }, // 分享者 ID
+          reward: { type: String, required: true }, // 獎勵內容
+        },
+      ],
+      participants: [
+        {
+          participantId: { type: String, required: true }, // 參加者 ID
+          reward: { type: String, required: true }, // 獎勵內容
+          participationRate: { type: Number, required: true }, // 參與率
+          totalMinutes: { type: Number, required: true }, // 總參與分鐘數
+        },
+      ],
+    },
   },
   { timestamps: true }
 );
