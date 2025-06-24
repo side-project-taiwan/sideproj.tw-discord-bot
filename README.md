@@ -28,18 +28,28 @@ $ npm start
 ## .env Configuration
 
 ```env
-DISCORD_CLIENT_BOT_ID
-DISCORD_TOKEN
-DISCORD_PUBLIC_KEY
+# Environment Variables
+
+## SERVER
+PORT                                            # Port of the server
+NODE_ENV                                        # Environment setting
+
+## DISCORD
+DISCORD_CLIENT_BOT_ID                           # Bot client ID
+DISCORD_TOKEN                                   # Bot token
+DISCORD_PUBLIC_KEY                              # Public key for verifying interactions
+DISCORD_GUILD_ID                                # Discord server (guild) ID
 DISCORD_ROLE_EVENT_HOST_ID                      # Role ID for Event Hosts
 DISCORD_CHANNEL_EVENT_STAGE_ID                  # Channel ID for the Event Stage
 DISCORD_CHANNEL_EVENT_STAGE_COMPLETED_COUNT_ID  # Channel ID showing stage attendee count
 DISCORD_CHANNEL_ADVENTURE_LOG_ID                # Channel ID for the Adventure Log
 DISCORD_CHANNEL_MEMBER_COUNT_ID                 # Channel ID showing total server member count
-MONGO_UR
-GOOGLE_CALENDAR_ID                              # ID of the Calendar to auto-schedule events
-PORT                                            # Port of the server
-NODE_ENV                                        # Environment etting
+
+## MONGO
+MONGO_URI                                       # MongoDB connection URI
+
+## GOOGLE CALENDAR
+GOOGLE_CALENDAR_ID                              # Google Calendar ID for scheduling events
 ```
 
 ## Available Commands for Discord Participants
