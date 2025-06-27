@@ -136,7 +136,7 @@ async function generateCheckInImage(teamInfo) {
 };
 
 
-async function drawSpRanking(teamInfo, duration = 'all') {
+async function drawSpRanking(teamInfo, text = 'all') {
   const cardWidth = 420;
   const cardHeight = 80;
   const padding = 20;
@@ -160,7 +160,7 @@ async function drawSpRanking(teamInfo, duration = 'all') {
   ctx.font = "20px Cubic11";
   ctx.fillStyle = "#00ccff";
   ctx.textBaseline = "top";
-  ctx.fillText(`[${duration}] Side Project Point Ranking`, padding, padding);
+  ctx.fillText(`[${text}] SP Ranking`, padding, padding);
 
   // Draw
   const offsetY = padding + titleHeight;
