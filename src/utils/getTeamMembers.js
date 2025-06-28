@@ -15,7 +15,7 @@ module.exports = async function getTeamMembersInfo(userIds, guild) {
     userIds.map((id) => guild.members.fetch(id))
   );
 
-  return results
+  const fulfilledMembers = results
     .filter((r) => r.status === "fulfilled")
     .map((r) => {
       const member = r.value;
@@ -30,4 +30,9 @@ module.exports = async function getTeamMembersInfo(userIds, guild) {
         spExp: level?.spExp || 0,
       };
     });
+
+  return {
+    members: fulfilledMembers,
+    count: fulfilledMembers.length,
+  };
 };
