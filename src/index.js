@@ -4,6 +4,8 @@ const { env } = require("./env");
 const eventHandler = require("./handlers/eventHandler");
 const { featureToggle } = require("../config.json");
 const { ensureFeatureToggles } = require("./services/featureToggle.service");
+const loadAllJobs = require("./jobs/loadAllJobs");
+const { setClient, startAllCronJobs } = require("./services/time.service");
 
 const client = new Client({
   intents: [
@@ -24,9 +26,14 @@ const client = new Client({
     console.log("Connected to MongoDB");
     await ensureFeatureToggles(Object.values(featureToggle));
   } catch (error) {
-    console.log(err);
+    console.log(error);
   }
-  // DC Client events handler
+
+  // load and start cron jobs
+  setClient(client);
+  loadAllJobs();
+  startAllCronJobs();
+
   eventHandler(client);
   client.login(env.DISCORD_TOKEN);
 })();
