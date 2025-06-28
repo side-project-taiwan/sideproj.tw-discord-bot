@@ -44,6 +44,8 @@ DISCORD_CHANNEL_EVENT_STAGE_ID                  # Channel ID for the Event Stage
 DISCORD_CHANNEL_EVENT_STAGE_COMPLETED_COUNT_ID  # Channel ID showing stage attendee count
 DISCORD_CHANNEL_ADVENTURE_LOG_ID                # Channel ID for the Adventure Log
 DISCORD_CHANNEL_MEMBER_COUNT_ID                 # Channel ID showing total server member count
+DISCORD_CHANNEL_SP_ID                           # Side project point ranking
+Side project point ranking
 
 ## MONGO
 MONGO_URI                                       # MongoDB connection URI

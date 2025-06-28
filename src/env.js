@@ -25,6 +25,7 @@ const environmentSchema = z.object({
     eventStageCompletedCount: z.string(),
     adventureLog: z.string(),
     memberCount: z.string(),
+    sp: z.string(),
   }),
 
   //MongoDB(資料庫設定相關)
@@ -46,6 +47,7 @@ const {
   DISCORD_CHANNEL_EVENT_STAGE_COMPLETED_COUNT_ID,
   DISCORD_CHANNEL_ADVENTURE_LOG_ID,
   DISCORD_CHANNEL_MEMBER_COUNT_ID,
+  DISCORD_CHANNEL_SP_ID,
   MONGO_URI,
   GOOGLE_CALENDAR_ID,
 } = process.env;
@@ -65,6 +67,7 @@ const environment = environmentSchema.safeParse({
     eventStageCompletedCount: DISCORD_CHANNEL_EVENT_STAGE_COMPLETED_COUNT_ID,
     adventureLog: DISCORD_CHANNEL_ADVENTURE_LOG_ID,
     memberCount: DISCORD_CHANNEL_MEMBER_COUNT_ID,
+    sp: DISCORD_CHANNEL_SP_ID,
   },
   MONGO_URI,
   GOOGLE_CALENDAR_ID,
