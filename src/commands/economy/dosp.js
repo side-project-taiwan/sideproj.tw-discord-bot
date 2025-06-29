@@ -124,7 +124,9 @@ module.exports = {
       updatedLevels.push(teammate);
     }
 
-    userLevel.spExp += bonus;
+    if (userIds.length > 1) {
+      userLevel.spExp += bonus;
+    }
 
     await userLevel.save().catch((error) => {
       console.log(`🚨 Error saving level: ${error}`);
@@ -143,10 +145,9 @@ module.exports = {
       console.log(`🚨 Error saving spExpChange: ${error}`);
       return;
     });
-
-    const { members: teamInfo, count: teamSize } = await getTeamMembersInfo(userIds, interaction.guild);
+    const teamInfo = await getTeamMembersInfo(userIds, interaction.guild);
     let imageBuffer = null;
-    imageBuffer = await generateCheckInImage(teamInfo, teamSize);
+    imageBuffer = await generateCheckInImage(teamInfo, userIds.length);
 
     const replyPayload = {
       content: replyString,
