@@ -5,7 +5,8 @@ const { env } = require("../../env");
 
 module.exports = {
   name: 'update-daily-ranking',
-  cron: '0 0 * * *',
+  // Run at 00:00 Taiwan time (UTC+8)
+  cron: '0 16 * * *',
   handler: async () => {
     const now = new Date().toLocaleDateString("zh-TW", { timeZone: "Asia/Taipei" });
     const client = getClient();
