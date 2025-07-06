@@ -6,7 +6,11 @@ export const rewardItemKeys = [
   "secret_scroll",
   "wisdom_seed",
 ];
-
+export const levelUpItemKeys = [
+  "job_scroll",
+  "wisdom_crystal",
+  "qigu_egg",
+]
 export function getActivityRewardItemByParticipationRate(participationRate) {
   if (participationRate <= 0) {
     return ""; // 參與度為 0，無獎勵
@@ -122,4 +126,51 @@ export function getTotalSecands(modifyedLogs) {
     totalSeconds += Math.round((log.l - log.j) / 1000);
   }
   return totalSeconds;
+}
+const generateSpeakerReward = () => {
+  // 隨機選擇一個升級道具
+  return levelUpItemKeys[Math.floor(Math.random() * levelUpItemKeys.length)];
+}
+export function generateRewardResults(participantData, event) {
+  const rewardResults = {
+    hosts: [],
+    speakers: [],
+    participants: [],
+  };
+  event.speakerIds.forEach((speakerId) => {
+    const rewardData = {
+      speakerId: speakerId,
+      reward: generateSpeakerReward(),
+    }
+    rewardResults.speakers.push(rewardData)
+  })
+  participantData.forEach((user) => {
+    const { userId, totalMinutes, participationRate, rewardItem } = user;
+
+    // // 主持人獎勵
+    // if (userId === eventId.hostId) {
+    //   rewardResults.hosts.push({
+    //     hostId: userId,
+    //     reward: rewardItem || "無",
+    //   });
+    // }
+
+    // // 分享者獎勵
+    // if (eventId.speakerIds.includes(userId)) {
+    //   rewardResults.sharers.push({
+    //     sharerId: userId,
+    //     reward: rewardItem || "無",
+    //   });
+    // }
+
+    // 參加者獎勵
+    rewardResults.participants.push({
+      participantId: userId,
+      reward: rewardItem || "無",
+      participationRate: participationRate || 0,
+      totalMinutes: totalMinutes || 0,
+    });
+  });
+
+  return rewardResults;
 }

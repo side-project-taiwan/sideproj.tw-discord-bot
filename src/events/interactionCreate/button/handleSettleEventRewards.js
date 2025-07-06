@@ -1,6 +1,6 @@
 const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, ModalBuilder, TextInputStyle, TextInputBuilder } = require("discord.js");
 const { findEventById } = require("../../../services/activityTracker.service");
-const { getActivityRewardItemByParticipationRate, getModifyedLogs, getTotalSecands } = require("../../../utils/activityUtils");
+const { getActivityRewardItemByParticipationRate, getModifyedLogs, getTotalSecands, generateRewardResults } = require("../../../utils/activityUtils");
 const fs = require("fs");
 const path = require("path");
 const { DateTime } = require("luxon");
@@ -29,7 +29,7 @@ module.exports = async (client, interaction) => {
       ephemeral: true,
     });
   }
-    // 計算活動總時長（以分鐘計算，無條件進位）
+  // 計算活動總時長（以分鐘計算，無條件進位）
   const eventDurationMinutes = Math.ceil((event.endTime - event.startTime) / (1000 * 60));
   // const participants = await interaction.guild.members.fetch({user: Array.from(event.participants.keys())});
   const participants = Array.from(event.participants.keys()).map(userId => {
@@ -60,6 +60,10 @@ module.exports = async (client, interaction) => {
       rewardItem,
     };
   })
+  const rewardResults = generateRewardResults(participantData, event);
+  event.rewardResults = rewardResults;
+  await event.save();
+  // console.log("獎勵結果: ", rewardResults);
   const participantNames = participantData.map(p => {
     const logs = p.originalLogs.map(log => {
       return `(${log.join ? DateTime.fromJSDate(log.join).toFormat("HH:mm:ss") : "無進入"} - ${log.leave ? DateTime.fromJSDate(log.leave).toFormat("HH:mm:ss") : "無離開"})`;
@@ -69,7 +73,6 @@ module.exports = async (client, interaction) => {
     }).join(",\n");
     return `${p.name}\n${logs}\n整理後時間\n${modifyedLogs}\n(${p.totalMinutes} 分鐘 參與度${p.participationRate}%)\n獎勵: ${p.rewardItem || "無"}`;
   }).join(",\n==============\n") || "無參加者";
-  console.log(participantNames)
 
   // 將 participantNames 寫入檔案
   const filePath = path.join(__dirname, "participantNames.txt");
@@ -93,6 +96,16 @@ module.exports = async (client, interaction) => {
       {
         name: "活動總時長",
         value: `${eventDurationMinutes} 分鐘`,
+        inline: false,
+      },
+      {
+        name: "主持人",
+        value: `${eventDurationMinutes} 分鐘`,
+        inline: false,
+      },
+      {
+        name: "分享者",
+        value: speakers.map(speaker => `${speaker.displayName} - ${rewardResults.speakers.find(r => r.speakerId === speaker.id)?.reward || "無"}`).join(", ") || "無",
         inline: false,
       },
       {

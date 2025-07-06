@@ -25,7 +25,7 @@ const EventSessionSchema = new Schema(
     channelId: { type: String, required: true }, // 語音頻道 ID
     topic: { type: String, required: true }, // 活動主題
     description: { type: String, required: true }, // 活動簡介
-    hostId: { type: String, required: true }, // 活動發起人
+    hostIds: { type: [String], required: true }, // 活動主持人 ID 清單
     speakerIds: { type: [String], default: [] }, // 分享者 ID 清單
     startTime: { type: Date, default: null },
     endTime: { type: Date, default: null },
@@ -50,9 +50,9 @@ const EventSessionSchema = new Schema(
           reward: { type: String, required: true }, // 獎勵內容
         },
       ],
-      sharers: [
+      speakers: [
         {
-          sharerId: { type: String, required: true }, // 分享者 ID
+          speakerId: { type: String, required: true }, // 分享者 ID
           reward: { type: String, required: true }, // 獎勵內容
         },
       ],
