@@ -98,34 +98,37 @@ module.exports = {
     });
 
     let userIds = [...new Set(teamLogs.map((log) => log.userId.toString()))];
-
-    const hr = signinLog.startTime.getHours();
-    const multiple = hr === SP_HOUR ? 2 : 1;
-
-    const updatedLevels = [];
-    const bonus = 5 * multiple;
-
-    for (const uid of userIds) {
-      const teammate = await getOrCreateUser(uid, guildId);
-      if (!teammate) continue;
-
-      teammate.spExp += bonus;
-      await teammate.save();
-
-      await SpExpChange.create({
-        userId: uid,
-        guildId,
-        signinId: signinLog._id,
-        expChange: bonus,
-        updatedExp: teammate.spExp,
-        reason: "teamBonus",
-      });
-
-      updatedLevels.push(teammate);
-    }
-
     if (userIds.length > 1) {
-      userLevel.spExp += bonus;
+      const hr = signinLog.startTime.getHours();
+      const multiple = hr === SP_HOUR ? 2 : 1;
+      const bonus = 5 * multiple;
+      for (const uid of userIds) {
+        const teammate = await getOrCreateUser(uid, guildId);
+        if (!teammate) continue;
+        if (uid === interaction.member.id) {
+          const teamBonus = bonus * (userIds.length - 1)
+          await SpExpChange.create({
+            userId: uid,
+            guildId,
+            signinId: signinLog._id,
+            expChange: teamBonus,
+            updatedExp: teammate.spExp + teamBonus,
+            reason: "teamBonus",
+          });
+          userLevel.spExp += teamBonus;
+        } else {
+          teammate.spExp += bonus;
+          await teammate.save();  
+          await SpExpChange.create({
+            userId: uid,
+            guildId,
+            signinId: signinLog._id,
+            expChange: bonus,
+            updatedExp: teammate.spExp,
+            reason: "teamBonus",
+          });
+        }
+      }
     }
 
     await userLevel.save().catch((error) => {
