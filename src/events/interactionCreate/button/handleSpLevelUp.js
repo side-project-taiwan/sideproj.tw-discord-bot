@@ -3,7 +3,7 @@ const {
   getOrCreateUser,
   calculateSpLevelUp,
 } = require("../../../services/level.service");
-const { getOrCreateInventory } = require("../../../services/inventory.service");
+const { getOrCreateInventory, removeItemFromInventory } = require("../../../services/inventory.service");
 const SpExpChange = require("../../../models/SpExpChange");
 const {
   env: { channels },
@@ -55,12 +55,22 @@ module.exports = async (client, interaction) => {
     userLevel.spLevel = newSpLevel;
     userLevel.spExp = remainingExp;
     await userLevel.save();
-    // 扣除物品
-    item.quantity -= 1;
-    if (item.quantity <= 0) {
-      inventory.items = inventory.items.filter((i) => i.key !== itemKey);
-    }
-    await inventory.save();
+    
+    // 扣除物品（使用新的 removeItemFromInventory 函數）
+    await removeItemFromInventory(
+      userId, 
+      guildId, 
+      itemKey, 
+      1, 
+      "升級消耗", 
+      `SP等級提升至 ${newSpLevel}`, 
+      null, 
+      { 
+        oldLevel: userLevel.spLevel - (newSpLevel - userLevel.spLevel), 
+        newLevel: newSpLevel, 
+        expCost: cost 
+      }
+    );
     // 寫入經驗值變動紀錄
     const spExpChange = new SpExpChange({
       userId,

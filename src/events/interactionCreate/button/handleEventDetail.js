@@ -1,4 +1,4 @@
-const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, ChannelType, ChannelSelectMenuBuilder } = require("discord.js");
+const { EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle, ChannelType, ChannelSelectMenuBuilder, UserSelectMenuBuilder } = require("discord.js");
 const { findEventById } = require("../../../services/activityTracker.service");
 const statusText = {
   draft: "草稿",
@@ -19,6 +19,8 @@ module.exports = async (client, interaction) => {
     });
   }
   const channel = await client.channels.fetch(event.channelId);
+  const hosts = await interaction.guild.members.fetch({user: event.hostIds || []});
+  const hostNames = hosts.map(host => `${host.displayName}`).join(", ") || "無";
   const speakers = await interaction.guild.members.fetch({user: event.speakerIds});
   const speakerNames = speakers.map(speaker => `${speaker.displayName}`).join(", ") || "無";
   console.log(Array.from(event.participants.keys()));
@@ -37,6 +39,7 @@ module.exports = async (client, interaction) => {
         value: `${event.description}`,
         inline: false,
       },
+      { name: "主持人", value: `${hostNames}`},
       { name: "分享者", value: `${speakerNames}`},
       { name: "參與者", value: `${participantNames}`},
       { name: "頻道", value: `${channel.name}`, inline: false },
@@ -79,22 +82,30 @@ module.exports = async (client, interaction) => {
       .setStyle(ButtonStyle.Success);
     currentRow.addComponents(button);
   }
-  const button = new ButtonBuilder()
+  const editEventButton = new ButtonBuilder()
       .setCustomId(`editEvent_${event._id}`)
       .setLabel(`編輯活動資訊`)
       .setStyle(ButtonStyle.Primary);
-    currentRow.addComponents(button);
-  const selectRow = new ActionRowBuilder();
-  const channelSelect = new ChannelSelectMenuBuilder()
-    .setCustomId(`updateEventChannel_${event._id}`)
-    .setPlaceholder('修改語音頻道')
-    .addChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]) // 篩選語音和舞台頻道
-    .setDefaultChannels([event.channelId])
-    .setMinValues(1)
-    .setMaxValues(1);
+    currentRow.addComponents(editEventButton);
   
-  selectRow.addComponents(channelSelect);
+  const editHostsButton = new ButtonBuilder()
+      .setCustomId(`editEventHosts_${event._id}`)
+      .setLabel(`編輯主持人`)
+      .setStyle(ButtonStyle.Primary);
+    currentRow.addComponents(editHostsButton);
+  
+  const editSpeakersButton = new ButtonBuilder()
+      .setCustomId(`editEventSpeakers_${event._id}`)
+      .setLabel(`編輯分享者`)
+      .setStyle(ButtonStyle.Primary);
+    currentRow.addComponents(editSpeakersButton);
+  
+  const editChannelButton = new ButtonBuilder()
+      .setCustomId(`editEventChannel_${event._id}`)
+      .setLabel(`編輯分享頻道`)
+      .setStyle(ButtonStyle.Primary);
+    currentRow.addComponents(editChannelButton);
+
   rows.push(currentRow);
-  rows.push(selectRow);
   return interaction.reply({ embeds: [embed], components: rows, ephemeral: true });
 };
