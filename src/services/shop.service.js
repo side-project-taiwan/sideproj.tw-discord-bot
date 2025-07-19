@@ -42,10 +42,25 @@ async function purchaseItem(userId, guildId, itemKey, isBoosting) {
 
   // TODO: 執行給獎邏輯（依 rewardType）
   // 加入背包
-  await addItemToInventory(userId, guildId, item.key, 1);
+  await addItemToInventory(
+    userId, 
+    guildId, 
+    item.key, 
+    1,
+    "商店購買",
+    `里程商店購買 - ${item.name}`,
+    null,
+    {
+      itemName: item.name,
+      mileageCost: finalCost,
+      isBoosting,
+      discountRate: discount,
+      remainingMileage: level.mileage
+    }
+  );
 
   // 記錄購買
-  await MileagePurchaseLog.create({
+  const purchaseLog = await MileagePurchaseLog.create({
     userId,
     guildId,
     itemKey: item.key,

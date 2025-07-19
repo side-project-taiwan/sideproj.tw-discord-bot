@@ -7,9 +7,15 @@ const handleStartEvent = require("./button/handleStartEvent");
 const handleEventDetail = require("./button/handleEventDetail");
 const handleEndEvent = require("./button/handleEndEvent");
 const handleEditEvent = require("./button/handleEditEvent");
+const handleEditEventHosts = require("./button/handleEditEventHosts");
+const handleEditEventSpeakers = require("./button/handleEditEventSpeakers");
+const handleEditEventChannel = require("./button/handleEditEventChannel");
 const handleUpdateEvent = require("./modalSubmit/handleUpdateEvent");
 const handleUpdateEventChannel = require("./channelSelectMenu/handleUpdateEventChannel");
+const handleUpdateEventHosts = require("./userSelectMenu/handleUpdateEventHosts");
+const handleUpdateEventSpeakers = require("./userSelectMenu/handleUpdateEventSpeakers");
 const handleSatteleEventRewards = require("./button/handleSettleEventRewards");
+const handleDoSettleRewards = require("./button/handleDoSettleRewards");
 /**
  *
  * @param {Client} client
@@ -27,6 +33,16 @@ module.exports = async (client, interaction) => {
     if (interaction.customId.startsWith("updateEventChannel_")) {
       if (!requireEventHost(interaction, "在嘗試查看活動")) return;
       return handleUpdateEventChannel(client, interaction);
+    }
+  }
+  if (interaction.isUserSelectMenu()) {
+    if (interaction.customId.startsWith("updateEventHosts_")) {
+      if (!requireEventHost(interaction, "在嘗試更新活動主持人")) return;
+      return handleUpdateEventHosts(client, interaction);
+    }
+    if (interaction.customId.startsWith("updateEventSpeakers_")) {
+      if (!requireEventHost(interaction, "在嘗試更新活動分享者")) return;
+      return handleUpdateEventSpeakers(client, interaction);
     }
   }
   if (!interaction.isButton()) return;
@@ -55,9 +71,25 @@ module.exports = async (client, interaction) => {
     if (!requireEventHost(interaction, "在嘗試編輯活動")) return;
     return handleEditEvent(client, interaction);
   }
+  if (interaction.customId.startsWith("editEventHosts_")) {
+    if (!requireEventHost(interaction, "在嘗試更改活動主持人")) return;
+    return handleEditEventHosts(client, interaction);
+  }
+  if (interaction.customId.startsWith("editEventSpeakers_")) {
+    if (!requireEventHost(interaction, "在嘗試更改活動講者")) return;
+    return handleEditEventSpeakers(client, interaction);
+  }
+  if (interaction.customId.startsWith("editEventChannel_")) {
+    if (!requireEventHost(interaction, "在嘗試更改活動頻道")) return;
+    return handleEditEventChannel(client, interaction);
+  }
   if (interaction.customId.startsWith("settleEventRewards_")) {
     if (!requireEventHost(interaction, "在嘗試發放活動獎勵")) return;
     return handleSatteleEventRewards(client, interaction);
+  }
+  if (interaction.customId.startsWith("doSettleRewards_")) {
+    if (!requireEventHost(interaction, "在嘗試執行獎勵發放")) return;
+    return handleDoSettleRewards(client, interaction);
   }
 
   // 預設：嘗試把 customId 當作 roleId 使用
