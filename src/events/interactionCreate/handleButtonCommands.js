@@ -16,6 +16,7 @@ const handleUpdateEventHosts = require("./userSelectMenu/handleUpdateEventHosts"
 const handleUpdateEventSpeakers = require("./userSelectMenu/handleUpdateEventSpeakers");
 const handleSatteleEventRewards = require("./button/handleSettleEventRewards");
 const handleDoSettleRewards = require("./button/handleDoSettleRewards");
+const handleResendRewardMessage = require("./button/handleResendRewardMessage");
 /**
  *
  * @param {Client} client
@@ -90,6 +91,10 @@ module.exports = async (client, interaction) => {
   if (interaction.customId.startsWith("doSettleRewards_")) {
     if (!requireEventHost(interaction, "在嘗試執行獎勵發放")) return;
     return handleDoSettleRewards(client, interaction);
+  }
+  if (interaction.customId.startsWith("handleResendRewardMessage_")) {
+    if (!requireEventHost(interaction, "在嘗試重發獎勵通知")) return;
+    return handleResendRewardMessage(client, interaction);
   }
 
   // 預設：嘗試把 customId 當作 roleId 使用
