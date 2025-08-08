@@ -119,12 +119,26 @@ module.exports = async (client, interaction) => {
 
   const rows = [];
   let currentRow = new ActionRowBuilder();
-  const button = new ButtonBuilder()
-    .setCustomId(`doSettleRewards_${eventId}`)
-    .setLabel(`執行發放獎勵`)
-    .setStyle(ButtonStyle.Primary);
+  
+  // 根據獎勵發送狀態決定顯示哪個按鈕
+  if (event.rewardStatus === 'distributed') {
+    // 如果已經發送過獎勵，顯示重發通知按鈕
+    const button = new ButtonBuilder()
+      .setCustomId(`handleResendRewardMessage_${eventId}`)
+      .setLabel(`重發獎勵通知`)
+      .setStyle(ButtonStyle.Secondary);
+    
+    currentRow.addComponents(button);
+  } else {
+    // 如果還沒發送過獎勵，顯示發放獎勵按鈕
+    const button = new ButtonBuilder()
+      .setCustomId(`doSettleRewards_${eventId}`)
+      .setLabel(`執行發放獎勵`)
+      .setStyle(ButtonStyle.Primary);
 
-  currentRow.addComponents(button);
+    currentRow.addComponents(button);
+  }
+  
   rows.push(currentRow);
 
   await interaction.reply({
