@@ -33,6 +33,7 @@ const environmentSchema = z.object({
 
   // GOOGLE(Google Calendar設定相關)
   GOOGLE_CALENDAR_ID: z.string(),
+  GOOGLE_SERVICE_ACCOUNT_KEY: z.string(),
 });
 
 const {
@@ -50,6 +51,7 @@ const {
   DISCORD_CHANNEL_SP_ID,
   MONGO_URI,
   GOOGLE_CALENDAR_ID,
+  GOOGLE_SERVICE_ACCOUNT_KEY,
 } = process.env;
 
 const environment = environmentSchema.safeParse({
@@ -71,6 +73,7 @@ const environment = environmentSchema.safeParse({
   },
   MONGO_URI,
   GOOGLE_CALENDAR_ID,
+  GOOGLE_SERVICE_ACCOUNT_KEY,
 });
 
 if (!environment.success) {

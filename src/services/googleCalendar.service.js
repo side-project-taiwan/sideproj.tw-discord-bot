@@ -2,14 +2,22 @@ const { google } = require("googleapis");
 const path = require("node:path");
 const CalendarEventMap = require("../models/CalendarEventMap");
 const {
-  env: { GOOGLE_CALENDAR_ID: calendarId },
+  env: { GOOGLE_CALENDAR_ID: calendarId, GOOGLE_SERVICE_ACCOUNT_KEY: serviceAccountKey },
 } = require("../env");
 
-const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, "../../credentials.json"),
-  scopes: ["https://www.googleapis.com/auth/calendar"],
-});
+let auth
 
+if(serviceAccountKey){
+  auth = new google.auth.GoogleAuth({
+    credentials: JSON.parse(serviceAccountKey),
+    scopes: ["https://www.googleapis.com/auth/calendar"],
+  });
+} else {
+  auth = new google.auth.GoogleAuth({
+    keyFile: path.join(__dirname, "../../credentials.json"),
+    scopes: ["https://www.googleapis.com/auth/calendar"],
+  });
+}
 const calendar = google.calendar({ version: "v3", auth });
 
 /**
