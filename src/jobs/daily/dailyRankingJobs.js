@@ -16,6 +16,13 @@ module.exports = {
     const label = `${now} Daily`;
 
     const { teamInfo } = await fetchRankingData(guild, "daily");
+
+    // Skip sending message if no one checked in today
+    if (teamInfo.length === 0) {
+      console.log(`${label}: No check-ins today, skipping daily ranking message.`);
+      return;
+    }
+
     const imageBuffer = await drawSpRanking(teamInfo, label);
 
     await channel.send({
