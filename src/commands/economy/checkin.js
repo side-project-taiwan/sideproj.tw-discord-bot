@@ -159,7 +159,7 @@ module.exports = {
         if (activityLogChannel && activityLogChannel.isTextBased()) {
           const displayTime = formatTaiwanTime(new Date());
           await activityLogChannel.send(
-            `${displayTime} ✨【 <@${userId}> 】已完成每日簽到！🏅`
+            `${displayTime} ✨【 <@${userId}> 】已完成每日簽到(連續${checkIn.streak}天)！🏅`
           );
           if (rewardResult)
             await activityLogChannel.send(
